@@ -1,0 +1,37 @@
+date; content; count object; gess; answer
+2021-12-07 21:01:28.301856;;a;1;0
+2021-12-07 21:01:50.789860;The Tesla and SpaceX CEO said during the interview that he’s concerned about the federal deficit;a;1;7
+2021-12-07 21:06:27.651882;He also said the Biden infrastructure plan should get canned;a;4;5
+2021-12-07 21:09:05.484358;“I would say... can the whole bill. Don’t pass it, that’s my recommendation,” Musk said.;i;2;4
+2021-12-09 08:18:47.502860;;r;6;0
+2021-12-09 08:19:04.974859;I’m trying to write an extremely fast signal processing library in Rust, but I’m a newbie and would like some pointers.;r;6;7
+2021-12-09 08:23:34.233858;Serde is a framework for serializing and deserializing Rust data structures efficiently and generically.;i;5;102021-12-10 16:52:08.262202;sudo add-apt-repository ppa:jonmagon/crow-translate;a;1;6
+2021-12-10 20:56:02.655168;Kali Linux is a Debian-based distribution with a collection of security and forensics tools. The project has published a new release, ;l;6;62021-12-12 22:33:52.481288;CentOS as a group is a community of open source contributors and users which started in 2003 and has been sponsored by Red Hat since 2014. CentOS Linux versions up to CentOS Linux 8 are 100% compatible rebuilds of Red Hat Enterprise Linux, in;l;4;2
+2021-12-12 22:34:51.414682;CentOS as a group is a community of open source contributors and users which started in 2003 and has been sponsored by Red Hat since 2014. CentOS Linux versions up to CentOS Linux 8 are 100% compatible rebuilds of Red Hat Enterprise Linux, in;L;2;3
+2021-12-14 14:51:19.031669;The app seems to be designed for social media managers, small business owners, and anyone else who has something to promote but isnâ€™t a pro at graphic design;g;6;5
+2021-12-14 14:54:43.218900;The app is free to start, but additional features â€” like access to Adobe Stock images â€” are available for a $9.99 per month subscription;n;8;3
+2021-12-15 18:23:16.714024;Back in early 2019 Microsoft announced Windows Terminal as a new terminal for Windows that seemed rather Linux-inspired and supported tabs and other modern functionality.;m;4;4
+2021-12-15 18:25:39.562791;Amazon has passed along word that they are hiring for Linux gaming engineers that are experienced in the likes of Valve's DXVK and Proton efforts as well as being experienced with the Mesa open-source graphics drivers, Vulkan, and more;i;7;13
+2021-12-16 23:29:57.195096;Earlier this month marked the general availability of CentOS Stream 9 as the bleeding-edge of Red hat Enterprise Linux 9 development.;r;4;7
+2021-12-16 23:30:56.824106;GNOME-focused Ubuntu desktop developer Daniel Van Vugt of Canonical has proposed an optimization that could help with running NVIDIA graphics on high refresh rate displays.;g;1;4
+2021-12-18 10:23:11.492686;While now half-way through December, Microsoft today published their November 2021 update to CBL-Mariner 1.0, their in-house Linux distribution.;h;4;8
+2021-12-18 10:28:57.059767;Horseshoe crab blood provides a natural source of limulus amebocyte lysate (LAL) which is used to test vaccines;h;2;3
+2021-12-18 10:32:22.487027;In the Delaware Bay, home to the largest population in the US, horseshoe crab numbers have declined from 1.24 million in 1990 to less than 334,000 in 2002;h;2;8
+2021-12-19 23:36:06.738601;Thanks to the reverse-engineering, open-source community there has been mainline Linux driver support ;s;5;5
+2021-12-19 23:37:09.760332;Coming as a surprise to end out the week is confirmation that the lead developer and architect for Intel's Linux Vulkan driver has left the company.;n;6;9
+2021-12-26 23:54:31.275604;is a specialist Ubuntu-based distribution designed for system rescue tasks. The project's latest release offers file image verification and an option to override filesystem errors;s;11;18
+2021-12-29 22:12:27.205019;Boba Fett is finally taking center stage in his own spinoff series, The Book of Boba Fett;s;6;6
+2021-12-30 23:32:10.375387; it turns out that JWST might be traveling and collecting data for much longer than initially expected;i;4;7
+2021-12-30 23:33:58.597713;According to the space agency, the extra fuel is largely due to the precision of the Arianespace Ariane 5 launch;i;3;6
+2021-12-31 22:41:20.052114;This has certainly been a jam-packed year full of, well, chaos, but also some great gadgets and worthwhile savings that help you save some coin along the way.;w;2;4
+2021-12-31 22:43:13.323066;Whether it’s mostly a Netflix-machine for your family or the main homework tool for a child, the base iPad is a workhorse that easily sells at its $329 entry price point;w;3;2
+2022-01-01 23:12:28.102876;Since we are all about performance and numbers, here is a look at the 2021 statistics for OpenBenchmarking.org itself as the online complementary component to the Phoronix Test Suite.;a;7;11
+2022-01-02 23:28:04.634924;Canonical is looking to capitalize on the renewed interest around Linux gaming and the raised prospects thanks to Valve's Steam Play allowing a growing number of compelling Windows games becoming playable on Linux.;c;5;5
+2022-01-05 16:56:41.270484;Sony has confirmed the name of its next VR headset: unsurprisingly, itâ€™s going to be called PlayStation VR2.;o;3;6
+2022-01-05 17:06:33.839883;The memo hints at concerns Netflix might have had regarding its ability to hire in the wake of the Dave Chappelle controversy.;o;4;6
+2022-01-06 22:36:42.641084;After a quiet holiday period the Linux 5.16 kernel is set to be introduced as stable this Sunday. Here is a look at the sixteen most exciting features to find with Linux 5.16.;o;3;8
+2022-01-06 22:38:18.794238;- Memory "folios" landed as an improvement to the core Linux memory management code. Look for more memory folios work to come in forthcoming cycles.;o;12;20
+2022-01-10 21:24:20.717028;Not only is there a lot of hardware driver action as usual but also some key performance/latency optimizations.;o;8;10
+2022-01-10 21:25:35.262691;The HID subsystem changes are rather exciting this time around of the new feature material for Linux 5.17.;o;1;3
+2022-01-12 23:10:40.623420;Two inventions on display at CES 2022 suggest the once-futuristic tech is poised to augment human bodies sooner rather than later.;l;2;2
+2022-01-14 23:05:20.203662;Apart from its significance for the decentralized finance (DeFi) industry, bitcoin trading has also become a lucrative business opportunity for investors, while mining the coins is a huge source of carbon emissions. ;a;6;11
