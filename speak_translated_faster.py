@@ -1,36 +1,66 @@
-from subprocess import Popen, check_output, PIPE
+from subprocess import Popen, check_output, PIPE, call
 from gtts.tts import gTTS
-import psutil
 
 
-def checkIfProcessRunning(processName):
-    """
-    Check if there is any running process that contains the given name processName.
-    """
-    # Iterate over the all the running process
-    for proc in psutil.process_iter():
-        try:
-            # Check if process name contains the given name string.
-            if processName.lower() in proc.name().lower() and proc.status() != "zombie":
-                return True
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
-            pass
-    return False
+# configs
+speed = 2.0
+player = "ffplay"
+tts_mode = "online"
 
 
-def handle():
-    speed = 2.0
 
-    text = check_output(["xsel"])
-    translated = check_output(["crow", "-b", "-t", "vi", text]).decode("utf-8")
-    tts = gTTS(text=translated, lang="vi")
-    p = Popen(["mpv", "--speed=" + str(speed), "--no-video", "-"], stdin=PIPE)
-    tts.write_to_fp(p.stdin)
-    p.stdin.close()
-    p.wait()
+def getText() -> bytes:
+    return check_output(["xsel"])
 
 
-if checkIfProcessRunning("mpv") == True:
-    Popen(["killall", "mpv"])
-else:
-    handle()
+def trans(text) -> str:
+    return check_output(["crow", "-b", "-t", "vi", text]).decode("utf-8")
+
+
+def tts(text, mode, player):
+    if mode == "offline":
+        call(["espeak-ng", "-vvi", text])
+    else:
+        tts = gTTS(text=text, lang="vi")
+        # uncomment this line to use mpv instead of ffplay below
+        if player == "mpv":
+            p = Popen(["mpv", "--speed=" + str(speed), "--no-video", "-"], stdin=PIPE)
+        else:
+            p = Popen(
+                [
+                    "ffplay",
+                    "-af",
+                    "atempo=" + str(speed),
+                    "-v",
+                    "quiet",
+                    "-nodisp",
+                    "-autoexit",
+                    "-",
+                ],
+                stdin=PIPE,
+            )
+        tts.write_to_fp(p.stdin)
+        p.stdin.close()
+        p.wait()
+
+
+def run():
+    try:
+        pid = (
+            check_output(["pidof", "-s", player])
+            .decode(encoding="utf8")
+            .replace("\n", "")
+        )
+        call(["kill", pid])
+    except:
+        text = getText()
+        translated = trans(text)
+        tts(text=translated, mode=tts_mode, player=player)
+
+
+def main():
+    run()
+
+
+if __name__ == "__main__":
+    main()

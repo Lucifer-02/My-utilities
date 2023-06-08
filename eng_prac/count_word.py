@@ -57,7 +57,7 @@ def main():
     print("-------------------------------------------------------------------------")
 
     # ATTENTION: change path to your needs
-    path = "/media/lucifer/DATA/My-utilities/eng_prac/data.csv"
+    path = "/media/lucifer/STORAGE/IMPORTANTS/My-utilities/eng_prac/data.csv"
 
     write_to_file(path, content, char, gess, answer)
     # print("Data written to: " + path)
