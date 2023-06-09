@@ -1,6 +1,7 @@
 from termcolor import colored
 import datetime
 from subprocess import check_output
+import platform
 
 
 # get content with xsel (linux) and check_output
@@ -57,7 +58,10 @@ def main():
     print("-------------------------------------------------------------------------")
 
     # ATTENTION: change path to your needs
-    path = "/media/lucifer/STORAGE/IMPORTANTS/My-utilities/eng_prac/data.csv"
+    if platform.node() == "lap":
+        path = "/media/lucifer/STORAGE/IMPORTANTS/My-utilities/eng_prac/data.csv"
+    else:
+        path = "/media/lucifer/DATA/My-utilities/eng_prac/data.csv"
 
     write_to_file(path, content, char, gess, answer)
     # print("Data written to: " + path)
