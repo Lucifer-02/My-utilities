@@ -38,10 +38,20 @@ def main():
     content = normalize_text(get_clipboard())
 
     char = input("Character to count: ")
-    gess = int(input('Guess number of "' + colored(char, "black", "on_white") + '": '))
+    # check char only contains characters
+    while not char.isalpha():
+        print("Invalid input!")
+        char = input("Character to count: ")
+
+    gess = input('Guess number of "' + colored(char, "black", "on_white") + '": ')
+    # check gess only contains numbers
+    while not gess.isnumeric():
+        print("Invalid input!")
+        gess = input('Guess number of "' + colored(char, "black", "on_white") + '": ')
+
     answer = get_char_count(content, char)
 
-    if gess == answer:
+    if int(gess) == answer:
         print(colored("Correct!", "black", "on_green"))
     else:
         print(colored("Wrong!", "black", "on_red"))
