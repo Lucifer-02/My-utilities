@@ -14,6 +14,7 @@ from subprocess import check_output, call, Popen, PIPE
 from gtts.tts import gTTS
 import sys
 import os
+from multiprocessing import Process
 
 
 def getText() -> bytes:
@@ -48,36 +49,47 @@ def tts(text, mode, player, speed):
             )
         tts.write_to_fp(p.stdin)
         p.stdin.close()
-        return p.pid
+        print("tts pid: " + str(p.pid))
+
 
 # check pid of the process
-def killed_pid(pid) -> bool:
-    if pid is None:
+def killed_pid(pid: int) -> bool:
+    if pid == 0:
         return False
     try:
-        os.kill(pid, 9)
+        os.kill(pid, 2)
         print("process " + str(pid) + " is running")
         return True
-    except :
+    except:
         print("process " + str(pid) + " is not running")
         return False
 
 
-# create new process to run tts independently from the main process and return return value
-def tts_process(text, mode, player, speed):
+def get_pid(name: str):
+    try:
+        return int(
+            check_output(["pidof", "-s", name]).decode("utf-8").strip().split(" ")[0]
+        )
+    except:
+        return 0
+
+
+# create new process to run tts independently from the main process and get return value frome tts function
+def tts_process(text, mode, player, speed) -> int:
     p = Process(target=tts, args=(text, mode, player, speed))
     p.start()
+    return int(p.pid)
+
 
 class Window(QWidget):
     speed = 1.5
     player = "ffplay"
     tts_mode = "online"
-    tts_pid = None
+    tts_pid = [0, 0]
 
     def __init__(self):
         super().__init__()
         self.initUI()
-        # configs
 
     def initUI(self):
         # set the window size and title
@@ -113,7 +125,7 @@ class Window(QWidget):
 
         # add a label to show the speed continuously
         self.speed_label = QLabel("Speed: " + str(self.speed), self)
-        self.speed_label.setFont(QFont("Arial", 20))
+        self.speed_label.setFont(QFont("Arial", 15))
 
         # create a grid layout
         self.grid = QGridLayout(self)
@@ -133,18 +145,25 @@ class Window(QWidget):
         # copy the text to clipboard the close the app
         self.clipboard = QApplication.clipboard()
         self.clipboard.setText(self.text_edit.toPlainText())
-        killed_pid(self.tts_pid)
+        killed_pid(self.tts_pid[0])
+        killed_pid(self.tts_pid[1])
         self.close()
 
     def speak(self):
         print("speak")
-        if not killed_pid(self.tts_pid):
-            self.tts_pid = tts(text=self.trans, mode=self.tts_mode, player=self.player, speed=self.speed)
-            print("pid: " + str(self.tts_pid))
+
+        self.tts_pid[0] = get_pid(self.player)
+
+        if self.tts_pid[0]:
+            killed_pid(self.tts_pid[0])
+            killed_pid(self.tts_pid[1])
         else:
-            self.tts_pid = None
-
-
+            self.tts_pid[1] = tts_process(
+                text=self.trans,
+                mode=self.tts_mode,
+                player=self.player,
+                speed=self.speed,
+            )
 
 
 if __name__ == "__main__":
