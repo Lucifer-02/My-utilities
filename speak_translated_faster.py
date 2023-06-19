@@ -8,7 +8,6 @@ player = "ffplay"
 tts_mode = "online"
 
 
-
 def getText() -> bytes:
     return check_output(["xsel"])
 
