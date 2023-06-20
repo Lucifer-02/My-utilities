@@ -15,6 +15,7 @@ from gtts.tts import gTTS
 import sys
 import os
 from multiprocessing import Process
+import pyperclip
 
 
 def getText() -> bytes:
@@ -142,9 +143,10 @@ class Window(QWidget):
 
     def copy_close(self):
         print("copy")
-        # copy the text to clipboard the close the app
-        self.clipboard = QApplication.clipboard()
-        self.clipboard.setText(self.text_edit.toPlainText())
+        # copy the text in textbox to clipboard the close the app
+        # self.clipboard = QApplication.clipboard()
+        # self.clipboard.setText(self.text_edit.toPlainText())
+        pyperclip.copy(self.text_edit.toPlainText())
         killed_pid(self.tts_pid[0])
         killed_pid(self.tts_pid[1])
         self.close()
