@@ -9,6 +9,9 @@ from PySide6.QtWidgets import (
     QLabel,
     QSpinBox,
     QSizePolicy,
+    QMainWindow,
+    QDialog,
+    QStatusBar,
 )
 from PySide6.QtGui import QFont
 from PySide6.QtCore import QSize, Qt, Slot
@@ -121,7 +124,7 @@ def tts_process(text, mode, player, speed) -> int:
     return int(p.pid)
 
 
-class Window(QWidget):
+class Window(QDialog):
     speed = 1.5
     player = "ffplay"
     tts_mode = "online"
@@ -135,7 +138,7 @@ class Window(QWidget):
 
     def initUI(self):
         # set the window size and title
-        self.setGeometry(900, 300, 900, 450)
+        self.setGeometry(900, 300, 600, 450)
         self.setWindowTitle("Edit translation")
 
         self.trans = align(trans(normalize(getText())), self.line_size)
@@ -150,14 +153,20 @@ class Window(QWidget):
         # create copy button in green color
         self.copy_button = QPushButton("Copy", self)
         self.copy_button.setFont(QFont("Arial", 20))
-        self.copy_button.clicked.connect(self.copy_close)
+        self.copy_button.clicked.connect(self.copy_content)
         self.copy_button.setFixedSize(QSize(120, 60))
         self.copy_button.setStyleSheet("background-color: green")
 
         self.speak_button = QPushButton("Speak", self)
-        self.speak_button.setFont(QFont("Arial", 20))
+        self.speak_button.setFont(QFont("Arial", 14))
         self.speak_button.clicked.connect(self.speak)
-        self.speak_button.setFixedSize(QSize(120, 60))
+        self.speak_button.setFixedSize(QSize(60, 40))
+
+        self.close_button = QPushButton("Close", self)
+        self.close_button.setFont(QFont("Arial", 20))
+        self.close_button.clicked.connect(self.close_window)
+        self.close_button.setFixedSize(QSize(120, 60))
+        self.close_button.setStyleSheet("background-color: red")
 
         # add a horizontal slider to change the speed
         self.speed_slider = QSlider(Qt.Horizontal)
@@ -165,7 +174,6 @@ class Window(QWidget):
         self.speed_slider.setMaximum(30)
         self.speed_slider.setValue(int(self.speed * 10))
         self.speed_slider.setTickInterval(1)
-        self.speed_slider.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.speed_slider.valueChanged.connect(self.update_speed)
 
         # add a label to show the speed continuously
@@ -184,6 +192,9 @@ class Window(QWidget):
         self.font_size_label = QLabel("Font size:")
         self.font_size_label.setFont(QFont("Arial", 14))
 
+        # add status bar to resize the window
+        self.statusbar = QStatusBar()
+
         # add a box with minus and plus button to change line size
         self.line_size_box = QSpinBox()
         self.line_size_box.setMaximum(100)
@@ -199,15 +210,17 @@ class Window(QWidget):
 
         # create a grid layout
         self.grid = QGridLayout(self)
-        self.grid.addWidget(self.text_edit, 1, 0, 1, 4)
+        self.grid.addWidget(self.text_edit, 1, 0, 1, 6)
         self.grid.addWidget(self.copy_button, 3, 0, 1, 1)
-        self.grid.addWidget(self.speak_button, 3, 1, 1, 1)
-        self.grid.addWidget(self.font_size_box, 3, 2, 1, 1)
-        self.grid.addWidget(self.line_size_box, 3, 3, 1, 1)
-        self.grid.addWidget(self.speed_slider, 4, 1, 1, 1)
-        self.grid.addWidget(self.speed_label, 4, 0, 1, 1)
-        self.grid.addWidget(self.font_size_label, 2, 2, 1, 1)
-        self.grid.addWidget(self.line_size_label, 2, 3, 1, 1)
+        self.grid.addWidget(self.close_button, 3, 1, 1, 1)
+        self.grid.addWidget(self.speed_slider, 2, 1, 1, 1)
+        self.grid.addWidget(self.speak_button, 2, 2, 1, 1)
+        self.grid.addWidget(self.font_size_box, 3, 4, 1, 1)
+        self.grid.addWidget(self.line_size_box, 3, 5, 1, 1)
+        self.grid.addWidget(self.speed_label, 2, 0, 1, 1)
+        self.grid.addWidget(self.font_size_label, 2, 4, 1, 1)
+        self.grid.addWidget(self.line_size_label, 2, 5, 1, 1)
+        self.grid.addWidget(self.statusbar, 4, 5, 1, 1)
 
     @Slot()
     def update_line_size(self):
@@ -226,14 +239,17 @@ class Window(QWidget):
         self.speed_label.setText("Speed: " + str(self.speed))
 
     @Slot()
-    def copy_close(self):
+    def copy_content(self):
         print("copy")
-        # copy the text in textbox to clipboard the close the app
-        # self.clipboard = QApplication.clipboard()
-        # self.clipboard.setText(self.text_edit.toPlainText())
-        pyperclip.copy(self.text_edit.toPlainText())
-        killed_pid(self.tts_pid[0])
-        killed_pid(self.tts_pid[1])
+        # copy the text in textbox to clipboard
+        self.clipboard = QApplication.clipboard()
+        self.clipboard.setText(self.text_edit.toPlainText())
+        # pyperclip.copy(self.text_edit.toPlainText())
+
+    @Slot()
+    def close_window(self):
+        # killed_pid(self.tts_pid[0])
+        # killed_pid(self.tts_pid[1])
         self.close()
 
     @Slot()
