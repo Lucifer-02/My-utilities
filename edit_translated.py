@@ -12,8 +12,9 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QDialog,
     QStatusBar,
+    QCheckBox,
 )
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QTextCursor
 from PySide6.QtCore import QSize, Qt, Slot
 from subprocess import check_output, call, Popen, PIPE
 from gtts.tts import gTTS
@@ -47,10 +48,15 @@ def align(string, width):
     return "\n".join(lines)
 
 
-# normalize text, remove new line
-def normalize(text) -> str:
-    return text.replace("\n", " ").replace("\r", " ").replace("  ", " ")
 
+def remove_newline(text) -> str:
+    return text.replace("\n", " ").replace("\r", " ")
+
+def remove_space(text) -> str:
+    return text.strip()
+
+def normalize(text) -> str:
+    return remove_space(remove_newline(text))
 
 def nearest_space_index(string, index):
     left = string.rfind(" ", 0, index)
@@ -116,6 +122,9 @@ def get_pid(name: str):
     except:
         return 0
 
+def add_indent(text, num):
+    return " " * num + text
+
 
 # create new process to run tts independently from the main process and get return value frome tts function
 def tts_process(text, mode, player, speed) -> int:
@@ -130,7 +139,7 @@ class Window(QDialog):
     tts_mode = "online"
     tts_pid = [0, 0]
     font_size = 13
-    line_size = 70
+    line_size = 0 
 
     def __init__(self):
         super().__init__()
@@ -141,14 +150,12 @@ class Window(QDialog):
         self.setGeometry(900, 300, 600, 450)
         self.setWindowTitle("Edit translation")
 
-        self.trans = align(trans(normalize(getText())), self.line_size)
+        self.trans = trans(normalize(getText()))
 
         # create textbox to edit text with default text
         self.text_edit = QTextEdit(self)
         self.text_edit.setFont(QFont("Arial", self.font_size))
         self.text_edit.setText(self.trans)
-        # adjust the size of the textbox to fit the text
-        self.text_edit.adjustSize()
 
         # create copy button in green color
         self.copy_button = QPushButton("Copy", self)
@@ -160,7 +167,7 @@ class Window(QDialog):
         self.speak_button = QPushButton("Speak", self)
         self.speak_button.setFont(QFont("Arial", 14))
         self.speak_button.clicked.connect(self.speak)
-        self.speak_button.setFixedSize(QSize(60, 40))
+        self.speak_button.setFixedSize(QSize(60, 30))
 
         self.close_button = QPushButton("Close", self)
         self.close_button.setFont(QFont("Arial", 20))
@@ -185,12 +192,15 @@ class Window(QDialog):
         self.font_size_box.setMaximum(30)
         self.font_size_box.setMinimum(5)
         self.font_size_box.setValue(13)
-        self.font_size_box.setFixedSize(QSize(90, 60))
+        self.font_size_box.setFixedSize(QSize(60, 60))
         self.font_size_box.valueChanged.connect(self.update_font_size)
 
         # add label to show the font size
-        self.font_size_label = QLabel("Font size:")
+        self.font_size_label = QLabel("Font:")
         self.font_size_label.setFont(QFont("Arial", 14))
+
+        # add a checkbox to diable/enable change font size
+        self.font_size_checkbox = QCheckBox()
 
         # add status bar to resize the window
         self.statusbar = QStatusBar()
@@ -201,31 +211,56 @@ class Window(QDialog):
         self.line_size_box.setMinimum(9)
         self.line_size_box.setValue(self.line_size)
         self.line_size_box.setSingleStep(2)
-        self.line_size_box.setFixedSize(QSize(90, 60))
-        self.line_size_box.valueChanged.connect(self.update_line_size)
+        self.line_size_box.setFixedSize(QSize(60, 60))
+        self.line_size_box.valueChanged.connect(self.update_content)
 
         # add label to show the line size
-        self.line_size_label = QLabel("Line size:")
+        self.line_size_label = QLabel("Line:")
         self.line_size_label.setFont(QFont("Arial", 14))
+
+
+        # add a checkbox to diable/enable change line lsize
+        self.line_size_checkbox = QCheckBox()
+
+        # add a box to add indent
+        self.indent_size_box = QSpinBox()
+        self.indent_size_box.setMaximum(10)
+        self.indent_size_box.setMinimum(1)
+        self.indent_size_box.setValue(4)
+        self.indent_size_box.setFixedSize(QSize(60, 60))
+        self.indent_size_box.valueChanged.connect(self.update_content)
+
+        # add label to show the indent size
+        self.indent_size_label = QLabel("Indent:")
+
 
         # create a grid layout
         self.grid = QGridLayout(self)
-        self.grid.addWidget(self.text_edit, 1, 0, 1, 6)
+        self.grid.addWidget(self.text_edit, 1, 0, 1, 9)
         self.grid.addWidget(self.copy_button, 3, 0, 1, 1)
         self.grid.addWidget(self.close_button, 3, 1, 1, 1)
         self.grid.addWidget(self.speed_slider, 2, 1, 1, 1)
         self.grid.addWidget(self.speak_button, 2, 2, 1, 1)
-        self.grid.addWidget(self.font_size_box, 3, 4, 1, 1)
-        self.grid.addWidget(self.line_size_box, 3, 5, 1, 1)
+
+        self.grid.addWidget(self.font_size_box, 3, 5, 1, 2)
+        self.grid.addWidget(self.line_size_box, 3, 7, 1, 2)
+        self.grid.addWidget(self.indent_size_box, 3, 3, 1, 2)
+
         self.grid.addWidget(self.speed_label, 2, 0, 1, 1)
-        self.grid.addWidget(self.font_size_label, 2, 4, 1, 1)
-        self.grid.addWidget(self.line_size_label, 2, 5, 1, 1)
-        self.grid.addWidget(self.statusbar, 4, 5, 1, 1)
+        self.grid.addWidget(self.font_size_label, 2, 5, 1, 1)
+        self.grid.addWidget(self.font_size_checkbox, 2, 6, 1, 1)
+        self.grid.addWidget(self.line_size_label, 2, 7, 1, 1)
+        self.grid.addWidget(self.font_size_checkbox, 2, 6, 1, 1)
+        self.grid.addWidget(self.line_size_checkbox, 2, 8, 1, 1)
+        self.grid.addWidget(self.indent_size_label, 2, 3, 1, 1)
+        self.grid.addWidget(self.statusbar, 4, 8, 1, 1)
 
     @Slot()
-    def update_line_size(self):
-        size = self.line_size_box.value()
-        self.text_edit.setText(align(normalize(self.trans), size))
+    def update_content(self):
+        line_size = self.line_size_box.value()
+        indent_size = self.indent_size_box.value()
+        text = add_indent(self.trans, indent_size)
+        self.text_edit.setText(align(text, line_size))
 
     @Slot()
     def update_font_size(self):
@@ -248,8 +283,8 @@ class Window(QDialog):
 
     @Slot()
     def close_window(self):
-        # killed_pid(self.tts_pid[0])
-        # killed_pid(self.tts_pid[1])
+        killed_pid(self.tts_pid[0])
+        killed_pid(self.tts_pid[1])
         self.close()
 
     @Slot()
