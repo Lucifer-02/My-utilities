@@ -129,6 +129,11 @@ def add_indent(text, num):
     return " " * num + text
 
 
+def count_lines(text: str):
+    # count number of newline characters in text
+    return text.count("\n") + 1
+
+
 # create new process to run tts independently from the main process and get return value frome tts function
 def tts_process(text, mode, player, speed) -> int:
     p = Process(target=tts, args=(text, mode, player, speed))
@@ -244,6 +249,10 @@ class Window(QDialog):
         self.indent_size_label = QLabel("Indent:")
         self.indent_size_label.setFont(QFont("JetBrains Mono Regular", 14))
 
+        # add label to show number of lines
+        self.line_count = QLabel("Lines: ")
+        self.text_edit.textChanged.connect(self.update_line_count)
+
         # create a grid layout
         self.grid = QGridLayout(self)
         self.grid.addWidget(self.text_edit, 1, 0, 1, 9)
@@ -264,7 +273,13 @@ class Window(QDialog):
         self.grid.addWidget(self.font_size_checkbox, 2, 6, 1, 1)
         self.grid.addWidget(self.line_size_checkbox, 2, 8, 1, 1)
         self.grid.addWidget(self.indent_size_label, 2, 3, 1, 1)
+        self.grid.addWidget(self.line_count, 4, 0, 1, 1)
         self.grid.addWidget(self.statusbar, 4, 8, 1, 1)
+
+    @Slot()
+    def update_line_count(self):
+        text = self.text_edit.toPlainText()
+        self.line_count.setText("Lines: " + str(count_lines(text)))
 
     @Slot()
     def reset_content(self):
