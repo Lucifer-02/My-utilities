@@ -1,27 +1,23 @@
 # create a window to edit text and a button copy text to clipboard using PySide6 and can auto adapt to the size of the text
 from PySide6.QtWidgets import (
     QApplication,
-    QWidget,
     QPushButton,
     QGridLayout,
     QTextEdit,
     QSlider,
     QLabel,
     QSpinBox,
-    QSizePolicy,
-    QMainWindow,
     QDialog,
     QStatusBar,
     QCheckBox,
 )
-from PySide6.QtGui import QFont, QTextCursor
+from PySide6.QtGui import QFont
 from PySide6.QtCore import QSize, Qt, Slot
 from subprocess import check_output, call, Popen, PIPE
 from gtts.tts import gTTS
 import sys
 import os
 from multiprocessing import Process
-import pyperclip
 
 
 def getText() -> str:
@@ -146,8 +142,8 @@ class Window(QDialog):
     player = "ffplay"
     tts_mode = "online"
     tts_pid = [0, 0]
-    font_size = 13
-    line_size = 50
+    font_size = 12
+    line_size = 60
     indent = 0
 
     def __init__(self):
@@ -163,30 +159,34 @@ class Window(QDialog):
 
         # create textbox to edit text with default text
         self.text_edit = QTextEdit(self)
-        self.text_edit.setFont(QFont("JetBrains Mono Regular", self.font_size))
+        self.text_edit.setFont(QFont("Arial", self.font_size))
+        # set background color to Solarized dark
+        self.text_edit.setStyleSheet(
+            "background-color: #002b36; color: #839496; border: 1px solid #586e75"
+        )
         self.text_edit.setText(self.trans)
 
         # create copy button in green color
         self.copy_button = QPushButton("Copy", self)
-        self.copy_button.setFont(QFont("JetBrains Mono Regular", 20))
+        self.copy_button.setFont(QFont("Ubuntu", 20))
         self.copy_button.clicked.connect(self.copy_content)
         self.copy_button.setFixedSize(QSize(120, 60))
         self.copy_button.setStyleSheet("background-color: green")
 
         self.speak_button = QPushButton("Speak", self)
-        self.speak_button.setFont(QFont("JetBrains Mono Regular", 14))
+        self.speak_button.setFont(QFont("Ubuntu", 14))
         self.speak_button.clicked.connect(self.speak)
         self.speak_button.setFixedSize(QSize(60, 30))
 
         self.close_button = QPushButton("Close", self)
-        self.close_button.setFont(QFont("JetBrains Mono Regular", 20))
+        self.close_button.setFont(QFont("Ubuntu", 20))
         self.close_button.clicked.connect(self.close_window)
         self.close_button.setFixedSize(QSize(120, 60))
         self.close_button.setStyleSheet("background-color: red")
 
         # add reset button to reset the content
         self.reset_button = QPushButton("Reset", self)
-        self.reset_button.setFont(QFont("JetBrains Mono Regular", 20))
+        self.reset_button.setFont(QFont("Ubuntu", 20))
         self.reset_button.clicked.connect(self.reset_content)
         self.reset_button.setFixedSize(QSize(120, 60))
         self.reset_button.setStyleSheet("background-color: orange")
@@ -201,11 +201,11 @@ class Window(QDialog):
 
         # add a label to show the speed continuously
         self.speed_label = QLabel("Speed: " + str(self.speed), self)
-        self.speed_label.setFont(QFont("JetBrains Mono Regular", 15))
+        self.speed_label.setFont(QFont("Ubuntu", 15))
 
         # add a box with minus and plus button to change font size
         self.font_size_box = QSpinBox()
-        self.font_size_box.setMaximum(30)
+        self.font_size_box.setMaximum(20)
         self.font_size_box.setMinimum(5)
         self.font_size_box.setValue(13)
         self.font_size_box.setFixedSize(QSize(60, 60))
@@ -213,7 +213,7 @@ class Window(QDialog):
 
         # add label to show the font size
         self.font_size_label = QLabel("Font:")
-        self.font_size_label.setFont(QFont("JetBrains Mono Regular", 14))
+        self.font_size_label.setFont(QFont("Ubuntu", 14))
 
         # add a checkbox to diable/enable change font size
         self.font_size_checkbox = QCheckBox()
@@ -232,7 +232,7 @@ class Window(QDialog):
 
         # add label to show the line size
         self.line_size_label = QLabel("Line:")
-        self.line_size_label.setFont(QFont("JetBrains Mono Regular", 14))
+        self.line_size_label.setFont(QFont("Ubuntu", 14))
 
         # add a checkbox to diable/enable change line lsize
         self.line_size_checkbox = QCheckBox()
@@ -247,7 +247,7 @@ class Window(QDialog):
 
         # add label to show the indent size
         self.indent_size_label = QLabel("Indent:")
-        self.indent_size_label.setFont(QFont("JetBrains Mono Regular", 14))
+        self.indent_size_label.setFont(QFont("Ubuntu", 14))
 
         # add label to show number of lines
         self.line_count = QLabel("Lines: ")
@@ -297,7 +297,7 @@ class Window(QDialog):
     def update_font_size(self):
         size = self.font_size_box.value()
         if size > 0:
-            self.text_edit.setFont(QFont("JetBrains Mono Regular", size))
+            self.text_edit.setFont(QFont("Ubuntu", size))
 
     @Slot()
     def update_speed(self):
@@ -310,7 +310,6 @@ class Window(QDialog):
         # copy the text in textbox to clipboard
         self.clipboard = QApplication.clipboard()
         self.clipboard.setText(self.text_edit.toPlainText())
-        # pyperclip.copy(self.text_edit.toPlainText())
 
     @Slot()
     def close_window(self):
