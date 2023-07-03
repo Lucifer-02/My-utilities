@@ -152,7 +152,7 @@ class Window(QDialog):
 
     def initUI(self):
         # set the window size and title
-        self.setGeometry(900, 300, 700, 500)
+        self.setGeometry(900, 300, 750, round(750/1.618))
         self.setWindowTitle("Edit translation")
 
         self.trans = trans(normalize(getText()))
@@ -170,25 +170,25 @@ class Window(QDialog):
         self.copy_button = QPushButton("Copy", self)
         self.copy_button.setFont(QFont("Ubuntu", 20))
         self.copy_button.clicked.connect(self.copy_content)
-        self.copy_button.setFixedSize(QSize(120, 60))
+        self.copy_button.setFixedSize(QSize(100, round(100/1.618)))
         self.copy_button.setStyleSheet("background-color: green")
 
         self.speak_button = QPushButton("Speak", self)
         self.speak_button.setFont(QFont("Ubuntu", 14))
         self.speak_button.clicked.connect(self.speak)
-        self.speak_button.setFixedSize(QSize(60, 30))
+        self.speak_button.setFixedSize(QSize(60, round(60/1.618)))
 
         self.close_button = QPushButton("Close", self)
         self.close_button.setFont(QFont("Ubuntu", 20))
         self.close_button.clicked.connect(self.close_window)
-        self.close_button.setFixedSize(QSize(120, 60))
+        self.close_button.setFixedSize(QSize(100, round(100/1.618)))
         self.close_button.setStyleSheet("background-color: red")
 
         # add reset button to reset the content
         self.reset_button = QPushButton("Reset", self)
         self.reset_button.setFont(QFont("Ubuntu", 20))
         self.reset_button.clicked.connect(self.reset_content)
-        self.reset_button.setFixedSize(QSize(120, 60))
+        self.reset_button.setFixedSize(QSize(100, round(100/1.618)))
         self.reset_button.setStyleSheet("background-color: orange")
 
         # add a horizontal slider to change the speed
@@ -208,7 +208,7 @@ class Window(QDialog):
         self.font_size_box.setMaximum(20)
         self.font_size_box.setMinimum(5)
         self.font_size_box.setValue(13)
-        self.font_size_box.setFixedSize(QSize(60, 60))
+        self.font_size_box.setFixedSize(QSize(60, round(60/1.618)))
         self.font_size_box.valueChanged.connect(self.update_font_size)
 
         # add label to show the font size
@@ -227,7 +227,7 @@ class Window(QDialog):
         self.line_size_box.setMinimum(0)
         self.line_size_box.setValue(self.line_size)
         self.line_size_box.setSingleStep(2)
-        self.line_size_box.setFixedSize(QSize(60, 60))
+        self.line_size_box.setFixedSize(QSize(60, round(60/1.618)))
         self.line_size_box.valueChanged.connect(self.update_content)
 
         # add label to show the line size
@@ -242,7 +242,7 @@ class Window(QDialog):
         self.indent_size_box.setMaximum(10)
         self.indent_size_box.setMinimum(0)
         self.indent_size_box.setValue(self.indent)
-        self.indent_size_box.setFixedSize(QSize(60, 60))
+        self.indent_size_box.setFixedSize(QSize(60, round(60/1.618)))
         self.indent_size_box.valueChanged.connect(self.update_content)
 
         # add label to show the indent size
