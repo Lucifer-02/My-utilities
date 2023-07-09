@@ -69,7 +69,7 @@ def main():
 
     # ATTENTION: change path to your needs
     if platform.node() == "lap":
-        path = "/media/lucifer/STORAGE/IMPORTANTS/My-utilities/eng_prac/data.csv"
+        path = "/media/lucifer/STORAGE/IMPORTANT/My-utilities/eng_prac/data.csv"
     else:
         path = "/media/lucifer/DATA/My-utilities/eng_prac/data.csv"
 
