@@ -64,3 +64,7 @@ date; content; count object; gess; answer
 2023-07-04 16:10:06.782135; is an introductory textbook for data science that will be published;d;2;3
 2023-07-04 16:16:59.481720;ensure that the urls in the sources list configuration files point to the proper repository before installing a linux package.;n;6;8
 2023-07-09 15:27:06.265331;naturally the first thing you’ll need to do in order to get up and running is to download the image;l;3;5
+2023-07-12 16:32:43.925774;the shell that is used is really a matter of taste;e;6;6
+2023-07-12 16:33:46.391040;ome shells sound a beep or show all the choices if more than one name matches;e;6;10
+2023-07-12 16:35:56.611392;another feature of the shell is the use of environment variables;e;9;10
+2023-07-12 16:36:55.285214;to prevent the shell from interpreting a special character,;e;7;8
