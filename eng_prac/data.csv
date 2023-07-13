@@ -68,3 +68,5 @@ date; content; count object; gess; answer
 2023-07-12 16:33:46.391040;ome shells sound a beep or show all the choices if more than one name matches;e;6;10
 2023-07-12 16:35:56.611392;another feature of the shell is the use of environment variables;e;9;10
 2023-07-12 16:36:55.285214;to prevent the shell from interpreting a special character,;e;7;8
+2023-07-13 16:11:54.487748;rust is mostly the solution to some common security problems.;o;6;8
+2023-07-13 16:53:08.645579;now that the linux 6.5 merge window ended this past weekend;e;6;8
