@@ -1,4 +1,4 @@
-date; content; count object; gess; answer
+timestamp; content; count object; gess; answer
 2021-12-07 21:01:28.301856;;a;1;0
 2021-12-07 21:01:50.789860;The Tesla and SpaceX CEO said during the interview that he’s concerned about the federal deficit;a;1;7
 2021-12-07 21:06:27.651882;He also said the Biden infrastructure plan should get canned;a;4;5
@@ -70,3 +70,5 @@ date; content; count object; gess; answer
 2023-07-12 16:36:55.285214;to prevent the shell from interpreting a special character,;e;7;8
 2023-07-13 16:11:54.487748;rust is mostly the solution to some common security problems.;o;6;8
 2023-07-13 16:53:08.645579;now that the linux 6.5 merge window ended this past weekend;e;6;8
+2023-07-14 17:13:17.535828;i understand why: the stakes for public comment become higher as you move up the ladder,;d;4;4
+2023-07-14 17:29:51.787357; vps of engineering often have a lot of influence over both company culture and policy;o;7;8
