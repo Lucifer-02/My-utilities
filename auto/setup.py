@@ -28,10 +28,8 @@ if __name__ == "__main__":
     result = {
         "stats_practices": {
             "Stats": {
-                "backup_book": get_dir_path() + "/statistics_freedman.pdf",
-                "edit_book": get_dir_path() + "/statistics_freedman.pdf",
-                "reader": "browser",
-                "browser": "microsoft-edge",
+                "book": get_dir_path() + "/statistics_freedman.pdf",
+                "reader": "microsoft-edge",
             }
         }
     }
