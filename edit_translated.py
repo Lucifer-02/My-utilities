@@ -11,13 +11,14 @@ from PySide6.QtWidgets import (
     QStatusBar,
     QCheckBox,
 )
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QKeyEvent
 from PySide6.QtCore import QSize, Qt, Slot
 from subprocess import check_output, call, Popen, PIPE
 from gtts.tts import gTTS
 import sys
 import os
 from multiprocessing import Process
+import json
 
 
 def getText() -> str:
@@ -137,22 +138,39 @@ def tts_process(text, mode, player, speed) -> int:
     return int(p.pid)
 
 
-class Window(QDialog):
-    speed = 1.5
-    player = "ffplay"
-    tts_mode = "online"
-    tts_pid = [0, 0]
-    font_size = 12
-    line_size = 60
-    indent = 0
+def press_key(key: str):
+    call(["xdotool", "key", key])
 
-    def __init__(self):
+
+def focus_window(pid: int):
+    call(["xdotool", "windowfocus", str(pid)])
+
+
+class Window(QDialog):
+    speed = 0
+    player = ""
+    tts_mode = ""
+    tts_pid = [0, 0]
+    font_size = 0
+    line_size = 0
+    indent = 0
+    editor_pid = 0
+
+    def __init__(self, config):
         super().__init__()
+        self.speed = config["speed"]
+        self.player = config["player"]
+        self.tts_mode = config["tts_mode"]
+        self.tts_pid = config["tts_pid"]
+        self.font_size = config["font_size"]
+        self.line_size = config["line_size"]
+        self.indent = config["indent"]
+        self.editor_pid = config["editor_pid"]
         self.initUI()
 
     def initUI(self):
         # set the window size and title
-        self.setGeometry(900, 300, 750, round(750/1.618))
+        self.setGeometry(900, 300, 750, round(750 / 1.618))
         self.setWindowTitle("Edit translation")
 
         self.trans = trans(normalize(getText()))
@@ -170,25 +188,25 @@ class Window(QDialog):
         self.copy_button = QPushButton("Copy", self)
         self.copy_button.setFont(QFont("Ubuntu", 20))
         self.copy_button.clicked.connect(self.copy_content)
-        self.copy_button.setFixedSize(QSize(100, round(100/1.618)))
+        self.copy_button.setFixedSize(QSize(100, round(100 / 1.618)))
         self.copy_button.setStyleSheet("background-color: green")
 
         self.speak_button = QPushButton("Speak", self)
         self.speak_button.setFont(QFont("Ubuntu", 14))
         self.speak_button.clicked.connect(self.speak)
-        self.speak_button.setFixedSize(QSize(60, round(60/1.618)))
+        self.speak_button.setFixedSize(QSize(60, round(60 / 1.618)))
 
         self.close_button = QPushButton("Close", self)
         self.close_button.setFont(QFont("Ubuntu", 20))
         self.close_button.clicked.connect(self.close_window)
-        self.close_button.setFixedSize(QSize(100, round(100/1.618)))
+        self.close_button.setFixedSize(QSize(100, round(100 / 1.618)))
         self.close_button.setStyleSheet("background-color: red")
 
         # add reset button to reset the content
         self.reset_button = QPushButton("Reset", self)
         self.reset_button.setFont(QFont("Ubuntu", 20))
         self.reset_button.clicked.connect(self.reset_content)
-        self.reset_button.setFixedSize(QSize(100, round(100/1.618)))
+        self.reset_button.setFixedSize(QSize(100, round(100 / 1.618)))
         self.reset_button.setStyleSheet("background-color: orange")
 
         # add a horizontal slider to change the speed
@@ -208,7 +226,7 @@ class Window(QDialog):
         self.font_size_box.setMaximum(20)
         self.font_size_box.setMinimum(5)
         self.font_size_box.setValue(13)
-        self.font_size_box.setFixedSize(QSize(60, round(60/1.618)))
+        self.font_size_box.setFixedSize(QSize(60, round(60 / 1.618)))
         self.font_size_box.valueChanged.connect(self.update_font_size)
 
         # add label to show the font size
@@ -227,7 +245,7 @@ class Window(QDialog):
         self.line_size_box.setMinimum(0)
         self.line_size_box.setValue(self.line_size)
         self.line_size_box.setSingleStep(2)
-        self.line_size_box.setFixedSize(QSize(60, round(60/1.618)))
+        self.line_size_box.setFixedSize(QSize(60, round(60 / 1.618)))
         self.line_size_box.valueChanged.connect(self.update_content)
 
         # add label to show the line size
@@ -242,7 +260,7 @@ class Window(QDialog):
         self.indent_size_box.setMaximum(10)
         self.indent_size_box.setMinimum(0)
         self.indent_size_box.setValue(self.indent)
-        self.indent_size_box.setFixedSize(QSize(60, round(60/1.618)))
+        self.indent_size_box.setFixedSize(QSize(60, round(60 / 1.618)))
         self.indent_size_box.valueChanged.connect(self.update_content)
 
         # add label to show the indent size
@@ -315,6 +333,12 @@ class Window(QDialog):
     def close_window(self):
         killed_pid(self.tts_pid[0])
         killed_pid(self.tts_pid[1])
+
+        # focus to editor window
+        focus_window(self.editor_pid)
+        # paste content
+        press_key("p")
+
         self.close()
 
     @Slot()
@@ -336,7 +360,14 @@ class Window(QDialog):
 
 
 if __name__ == "__main__":
+    with open("/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json") as file:
+        config = json.load(file)
+
+    if config["editor_pid"] == 0:
+        print("Config editor PID first")
+        exit()
+
     app = QApplication(sys.argv)
-    window = Window()
+    window = Window(config)
     window.show()
     sys.exit(app.exec())
