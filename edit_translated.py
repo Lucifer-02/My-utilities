@@ -360,7 +360,7 @@ class Window(QDialog):
 
 
 if __name__ == "__main__":
-    with open("/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json") as file:
+    with open("/media/lucifer/DATA/My-utilities/config.json") as file:
         config = json.load(file)
 
     if config["editor_pid"] == 0:
