@@ -4,37 +4,34 @@ from subprocess import call
 
 
 def read_book(book, reader):
-    # os.system("{} {}".format(reader, book))
     call([reader, book])
 
 
 # create new tab with tilte in xfce4-terminal
-def new_tab_with_cmd(title, cmd): 
-    call(["xfce4-terminal", "--tab", "--title", title, "-e", cmd, "--hold"]) 
+def new_tab_with_cmd(title, cmd):
+    call(["xfce4-terminal", "--tab", "--title", title, "-e", cmd, "--hold"])
+
 
 def new_tab(title):
     call(["xfce4-terminal", "--tab", "--title", title])
 
 
-def run_cmd(cmd):
+def type_run_cmd(cmd):
     call(["xdotool", "type", cmd])
     call(["xdotool", "key", "Return"])
 
 
-def move_last_workspace():
-    call(["xdotool", "key", "Super+End"])
-
-def move_first_workspace():
-    call(["xdotool", "key", "Super+Home"])
+def press(key: str):
+    call(["xdotool", "key", key])
 
 
 def change_dir(path):
-    run_cmd("cd {}".format(path))
+    type_run_cmd("cd {}".format(path))
 
 
 def translate_book(render_cmd, watch_cmd, edit_cmd):
     new_tab("edit")
-    run_cmd(edit_cmd)
+    type_run_cmd(edit_cmd)
     new_tab_with_cmd("render", render_cmd)
     new_tab_with_cmd("watch", watch_cmd)
 
@@ -51,6 +48,7 @@ def get_dir_path() -> str:
         print("Please set the environment variable STATS_PATH")
         exit(1)
 
+
 # main
 if __name__ == "__main__":
     # dir_path = "/media/lucifer/STORAGE/IMPORTANT/stats-practices/Stat"
@@ -65,6 +63,13 @@ if __name__ == "__main__":
     translate_book(render_cmd=render_cmd, watch_cmd=watch_cmd, edit_cmd=edit_cmd)
     sleep(1)
     read_book(book=book_path, reader="microsoft-edge")
-    sleep(2)
-    split_window("Left")
+    sleep(1.5)
+    press("Super_L+Left")
+    sleep(1)
 
+    # return to edit
+    press("alt+Tab")
+    sleep(0.5)
+    press("alt+2")
+    sleep(0.5)
+    press("Super_L+Right")
