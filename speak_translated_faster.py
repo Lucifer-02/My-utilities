@@ -1,6 +1,7 @@
 from subprocess import Popen, check_output, PIPE, call
 from gtts.tts import gTTS
 
+# import pyperclip
 
 # configs
 speed = 2.0
@@ -8,12 +9,21 @@ player = "ffplay"
 tts_mode = "online"
 
 
-def getText() -> bytes:
-    return check_output(["xsel"])
+def getText() -> str:
+    return check_output(["xsel"]).decode("utf-8")
+
+
+# def getText() -> bytes:
+#     call(["xdotool", "key", "ctrl+c"])
+#     return pyperclip.paste().encode("utf-8")
 
 
 def trans(text) -> str:
-    return check_output(["crow", "-b", "-t", "vi", text]).decode("utf-8")
+    # check first character
+    # if text[0] == b"-":
+    #     text = text[1:]
+    print(text)
+    return check_output(["crow", "-b", "-t", "vi", f"\"{text}\""]).decode("utf-8")
 
 
 def tts(text, mode, player):
