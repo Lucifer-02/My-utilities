@@ -9,8 +9,8 @@ player = "ffplay"
 tts_mode = "online"
 
 
-def getText() -> str:
-    return check_output(["xsel"]).decode("utf-8")
+def getText() -> bytes:
+    return check_output(["xsel"])
 
 
 # def getText() -> bytes:
@@ -18,12 +18,8 @@ def getText() -> str:
 #     return pyperclip.paste().encode("utf-8")
 
 
-def trans(text) -> str:
-    # check first character
-    # if text[0] == b"-":
-    #     text = text[1:]
-    print(text)
-    return check_output(["crow", "-b", "-t", "vi", f"\"{text}\""]).decode("utf-8")
+def trans(text: bytes) -> str:
+    return check_output(["crow", "-b", "-t", "vi", text]).decode("utf-8")
 
 
 def tts(text, mode, player):
