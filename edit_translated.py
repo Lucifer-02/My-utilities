@@ -154,7 +154,7 @@ class Window(QDialog):
     font_size = 0
     line_size = 0
     indent = 0
-    editor_pid = 0
+    editor_window_id = 0
 
     def __init__(self, config):
         super().__init__()
@@ -165,7 +165,7 @@ class Window(QDialog):
         self.font_size = config["font_size"]
         self.line_size = config["line_size"]
         self.indent = config["indent"]
-        self.editor_pid = config["editor_pid"]
+        self.editor_window_id = config["editor_window_id"]
         self.initUI()
 
     def initUI(self):
@@ -335,7 +335,9 @@ class Window(QDialog):
         killed_pid(self.tts_pid[1])
 
         # focus to editor window
-        focus_window(self.editor_pid)
+        focus_window(self.editor_window_id)
+        press_key("Escape")
+        press_key("shift+g")
         # paste content
         press_key("p")
 
@@ -363,7 +365,7 @@ if __name__ == "__main__":
     with open("/media/lucifer/DATA/My-utilities/config.json") as file:
         config = json.load(file)
 
-    if config["editor_pid"] == 0:
+    if config["editor_window_id"] == 0:
         print("Config editor PID first")
         exit()
 
