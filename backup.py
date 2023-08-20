@@ -282,7 +282,9 @@ class Window(QDialog):
 
 
 if __name__ == "__main__":
-    with open("/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json") as file:
+    config_path = os.getenv("DATA_PATH", "") + "/My-utilities/config.json"
+    print(config_path)
+    with open(config_path) as file:
         config = json.load(file)
 
     if config["editor_window_id"] == 0:

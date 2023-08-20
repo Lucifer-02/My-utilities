@@ -1,24 +1,10 @@
 from subprocess import Popen, check_output, PIPE, call
 from gtts.tts import gTTS
-
-# import pyperclip
-
-# configs
-speed = 2.0
-player = "ffplay"
-tts_mode = "online"
+import my_copy
+from normalize_str import removeNewline, removeReturn
 
 
-def getText() -> bytes:
-    return check_output(["xsel"])
-
-
-# def getText() -> bytes:
-#     call(["xdotool", "key", "ctrl+c"])
-#     return pyperclip.paste().encode("utf-8")
-
-
-def trans(text: bytes) -> str:
+def trans(text: str) -> str:
     return check_output(["crow", "-b", "-t", "vi", text]).decode("utf-8")
 
 
@@ -58,8 +44,8 @@ def run():
         )
         call(["kill", pid])
     except:
-        text = getText()
-        translated = trans(text)
+        text = my_copy.getText()
+        translated = trans(removeReturn(removeNewline(text)))
         tts(text=translated, mode=tts_mode, player=player)
 
 
@@ -68,4 +54,8 @@ def main():
 
 
 if __name__ == "__main__":
+    # configs
+    speed = 2.0
+    player = "ffplay"
+    tts_mode = "online"
     main()
