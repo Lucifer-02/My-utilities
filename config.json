@@ -1,0 +1,14 @@
+{
+  "edit": {
+    "speed": 2,
+    "player": "ffplay",
+    "tts_mode": "online",
+    "font_size": 13,
+    "editor_window_id": 1
+  },
+  "tts": {
+    "speed": 2,
+    "player": "ffplay",
+    "tts_mode": "online"
+  }
+}
