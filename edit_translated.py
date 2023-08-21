@@ -15,12 +15,12 @@ from PySide6.QtGui import QFont
 from PySide6.QtCore import QSize, Qt, Slot
 import sys
 import json
-from my_copy import getText
-from normalize_str import removeNewline, removeSpace, removeReturn
-from myTTS import tts_process
-from myPIDHandle import killPIDByID, getPID
-from myTranslate import trans
-from myXdotool import press_key, focus_window
+from myLib.copy import getText
+from myLib.normalize_str import removeNewline, removeReturn, removeSpace
+from myLib.translate import trans
+from myLib.pidHandle import killPIDByID, getPID
+from myLib.TTS import tts_process
+from myLib.xdotool import press_key, focus_window
 
 
 def normalize(text: str) -> str:
