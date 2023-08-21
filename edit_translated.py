@@ -15,6 +15,7 @@ from PySide6.QtGui import QFont
 from PySide6.QtCore import QSize, Qt, Slot
 import sys
 import json
+import os
 from myLib.copy import getText
 from myLib.normalize_str import removeNewline, removeReturn, removeSpace
 from myLib.translate import trans
@@ -194,8 +195,10 @@ class Window(QDialog):
 
 
 if __name__ == "__main__":
-    with open("/media/lucifer/DATA/My-utilities/config.json") as file:
-        config = json.load(file)
+    # config_path = os.environ["DATA_PATH"] + "/My-utilities/config.json"
+    config_path = "/media/lucifer/DATA/My-utilities/config.json"
+    with open(config_path, "r") as file:
+        config = json.load(file)["edit"]
 
     if config["editor_window_id"] == 0:
         print("Config editor PID first")

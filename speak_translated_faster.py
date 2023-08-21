@@ -14,8 +14,9 @@ def run(speed: float, player: str, tts_mode: str):
 
 
 if __name__ == "__main__":
-    # configs
-    speed = 2.0
-    player = "ffplay"
-    tts_mode = "online"
-    run(speed=speed, player=player, tts_mode=tts_mode)
+    # config_path = os.getenv("DATA_PATH", "") + "/My-utilities/config.json"
+    # with open(config_path, "r") as file:
+    #     config = json.load(file)["tts"]
+    #     run(speed=config["speed"], player=config["player"], tts_mode=config["tts_mode"])
+
+    run(speed=2.0, player="ffmpeg", tts_mode="online")
