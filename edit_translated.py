@@ -13,44 +13,19 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QFont
 from PySide6.QtCore import QSize, Qt, Slot
-from subprocess import check_output, call
 import sys
-from multiprocessing import Process
 import json
 from my_copy import getText
 from normalize_str import removeNewline, removeSpace, removeReturn
-from myTTS import tts
-from myPIDHandle import killed_pid, getPID
+from myTTS import tts_process
+from myPIDHandle import killPIDByID, getPID
 from myTranslate import trans
+from myXdotool import press_key, focus_window
 
 
 def normalize(text: str) -> str:
     text = removeSpace(removeReturn(removeNewline(text)))
     return text
-
-
-def get_pid(name: str):
-    try:
-        return int(
-            check_output(["pidof", "-s", name]).decode("utf-8").strip().split(" ")[0]
-        )
-    except:
-        return 0
-
-
-# create new process to run tts independently from the main process and get return value frome tts function
-def tts_process(text, mode, player, speed) -> int:
-    p = Process(target=tts, args=(text, mode, player, speed))
-    p.start()
-    return int(p.pid)
-
-
-def press_key(key: str):
-    call(["xdotool", "key", key])
-
-
-def focus_window(pid: int):
-    call(["xdotool", "windowfocus", str(pid)])
 
 
 class Window(QDialog):
@@ -129,7 +104,7 @@ class Window(QDialog):
         self.font_size_box.setMaximum(20)
         self.font_size_box.setMinimum(5)
         self.font_size_box.setValue(13)
-        self.font_size_box.setFixedSize(QSize(60, round(60 / 1.618)))
+        self.font_size_box.setFixedSize(QSize(80, round(80 / 1.618)))
         self.font_size_box.valueChanged.connect(self.update_font_size)
 
         # add label to show the font size
@@ -151,13 +126,12 @@ class Window(QDialog):
         self.grid.addWidget(self.speak_button, 2, 2, 1, 1)
         self.grid.addWidget(self.reset_button, 3, 2, 1, 1)
 
-        self.grid.addWidget(self.font_size_box, 3, 5, 1, 2)
+        self.grid.addWidget(self.font_size_box, 3, 3, 1, 2)
 
         self.grid.addWidget(self.speed_label, 2, 0, 1, 1)
-        self.grid.addWidget(self.font_size_label, 2, 5, 1, 1)
-        self.grid.addWidget(self.font_size_checkbox, 2, 6, 1, 1)
-        self.grid.addWidget(self.font_size_checkbox, 2, 6, 1, 1)
-        self.grid.addWidget(self.statusbar, 4, 8, 1, 1)
+        self.grid.addWidget(self.font_size_label, 2, 3, 1, 1)
+        self.grid.addWidget(self.font_size_checkbox, 2, 4, 1, 1)
+        self.grid.addWidget(self.statusbar, 3, 5, 1, 1)
 
     @Slot()
     def reset_content(self):
@@ -181,37 +155,42 @@ class Window(QDialog):
         self.clipboard = QApplication.clipboard()
         self.clipboard.setText(self.text_edit.toPlainText())
 
+    def _after_close(self):
+        # focus to editor window
+        focus_window(self.editor_window_id)
+
+        press_key("Escape")
+        press_key("shift+g")
+        # paste content
+        press_key("p")
+
     @Slot()
     def close_window(self):
-        killed_pid(self.tts_pid[0])
-        killed_pid(self.tts_pid[1])
-
-        # # focus to editor window
-        # focus_window(self.editor_window_id)
-        #
-        # press_key("Escape")
-        # press_key("shift+g")
-        # # paste content
-        # press_key("p")
-
+        killPIDByID(self.tts_pid[0])
+        killPIDByID(self.tts_pid[1])
         self.close()
+        self._after_close()
 
     @Slot()
     def speak(self):
         print("speak")
 
-        self.tts_pid[0] = get_pid(self.player)
+        self.tts_pid[0] = getPID(self.player)
 
         if self.tts_pid[0]:
-            killed_pid(self.tts_pid[0])
-            killed_pid(self.tts_pid[1])
+            killPIDByID(self.tts_pid[0])
+            killPIDByID(self.tts_pid[1])
         else:
-            self.tts_pid[1] = tts_process(
-                text=self.text_edit.toPlainText(),
-                mode=self.tts_mode,
-                player=self.player,
-                speed=self.speed,
-            )
+            if (
+                tts_process(
+                    text=self.text_edit.toPlainText(),
+                    mode=self.tts_mode,
+                    player=self.player,
+                    speed=self.speed,
+                )
+                is not None
+            ):
+                self.tts_pid[1]
 
 
 if __name__ == "__main__":

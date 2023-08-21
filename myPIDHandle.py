@@ -2,30 +2,29 @@ from subprocess import CalledProcessError, check_output, call
 import os
 
 
-def getPID(player: str) -> str | None:
+def getPID(player: str) -> int:
     try:
-        return (
+        return int(
             check_output(["pidof", "-s", player])
             .decode(encoding="utf8")
             .replace("\n", "")
         )
     except CalledProcessError:
-        print("Player is not running")
-        return None
+        return 0
 
 
 # kill pid of player and raise exception if player is not running
-def killPID(player: str) -> bool:
+def killPIDByName(player: str) -> bool:
     pid = getPID(player)
-    if pid is not None:
-        call(["kill", pid])
+    if pid != 0:
+        call(["kill", str(pid)])
         return True
     else:
         return False
 
 
 # check pid of the process
-def killed_pid(pid: int) -> bool:
+def killPIDByID(pid: int) -> bool:
     if pid == 0:
         return False
     try:
