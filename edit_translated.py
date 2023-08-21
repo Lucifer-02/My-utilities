@@ -11,65 +11,22 @@ from PySide6.QtWidgets import (
     QStatusBar,
     QCheckBox,
 )
-from PySide6.QtGui import QFont, QKeyEvent
+from PySide6.QtGui import QFont
 from PySide6.QtCore import QSize, Qt, Slot
-from subprocess import check_output, call, Popen, PIPE
-from gtts.tts import gTTS
+from subprocess import check_output, call
 import sys
-import os
 from multiprocessing import Process
 import json
 from my_copy import getText
-from normalize_str import removeNewline, removeSpace, addIndent, removeReturn
+from normalize_str import removeNewline, removeSpace, removeReturn
+from myTTS import tts
+from myPIDHandle import killed_pid, getPID
+from myTranslate import trans
 
 
 def normalize(text: str) -> str:
     text = removeSpace(removeReturn(removeNewline(text)))
     return text
-
-
-def trans(text) -> str:
-    return check_output(["crow", "-b", "-t", "vi", text]).decode("utf-8")
-
-
-def tts(text: str, mode: str, player: str, speed: int):
-    if mode == "offline":
-        call(["espeak-ng", "-vvi", text])
-    else:
-        tts = gTTS(text=text, lang="vi")
-        # uncomment this line to use mpv instead of ffplay below
-        if player == "mpv":
-            p = Popen(["mpv", "--speed=" + str(speed), "--no-video", "-"], stdin=PIPE)
-        else:
-            p = Popen(
-                [
-                    "ffplay",
-                    "-af",
-                    "atempo=" + str(speed),
-                    "-v",
-                    "quiet",
-                    "-nodisp",
-                    "-autoexit",
-                    "-",
-                ],
-                stdin=PIPE,
-            )
-        tts.write_to_fp(p.stdin)
-        p.stdin.close()
-        print("tts pid: " + str(p.pid))
-
-
-# check pid of the process
-def killed_pid(pid: int) -> bool:
-    if pid == 0:
-        return False
-    try:
-        os.kill(pid, 2)
-        print("process " + str(pid) + " is running")
-        return True
-    except:
-        print("process " + str(pid) + " is not running")
-        return False
 
 
 def get_pid(name: str):
@@ -102,7 +59,6 @@ class Window(QDialog):
     tts_mode = ""
     tts_pid = [0, 0]
     font_size = 0
-    indent = 0
     editor_window_id = 0
 
     def __init__(self, config):
@@ -110,9 +66,7 @@ class Window(QDialog):
         self.speed = config["speed"]
         self.player = config["player"]
         self.tts_mode = config["tts_mode"]
-        self.tts_pid = config["tts_pid"]
         self.font_size = config["font_size"]
-        self.indent = config["indent"]
         self.editor_window_id = config["editor_window_id"]
         self.initUI()
 
@@ -121,8 +75,8 @@ class Window(QDialog):
         self.setGeometry(900, 300, 750, round(750 / 1.618))
         self.setWindowTitle("Edit translation")
 
-        text = normalize(getText())
-        self.trans = trans(text)
+        self.text = normalize(getText())
+        self.trans = trans(self.text)
 
         # create textbox to edit text with default text
         self.text_edit = QTextEdit(self)
@@ -188,18 +142,6 @@ class Window(QDialog):
         # add status bar to resize the window
         self.statusbar = QStatusBar()
 
-        # add a box to add indent
-        self.indent_size_box = QSpinBox()
-        self.indent_size_box.setMaximum(10)
-        self.indent_size_box.setMinimum(0)
-        self.indent_size_box.setValue(self.indent)
-        self.indent_size_box.setFixedSize(QSize(60, round(60 / 1.618)))
-        self.indent_size_box.valueChanged.connect(self.update_content)
-
-        # add label to show the indent size
-        self.indent_size_label = QLabel("Indent:")
-        self.indent_size_label.setFont(QFont("Ubuntu", 14))
-
         # create a grid layout
         self.grid = QGridLayout(self)
         self.grid.addWidget(self.text_edit, 1, 0, 1, 9)
@@ -210,25 +152,16 @@ class Window(QDialog):
         self.grid.addWidget(self.reset_button, 3, 2, 1, 1)
 
         self.grid.addWidget(self.font_size_box, 3, 5, 1, 2)
-        self.grid.addWidget(self.indent_size_box, 3, 3, 1, 2)
 
         self.grid.addWidget(self.speed_label, 2, 0, 1, 1)
         self.grid.addWidget(self.font_size_label, 2, 5, 1, 1)
         self.grid.addWidget(self.font_size_checkbox, 2, 6, 1, 1)
         self.grid.addWidget(self.font_size_checkbox, 2, 6, 1, 1)
-        self.grid.addWidget(self.indent_size_label, 2, 3, 1, 1)
         self.grid.addWidget(self.statusbar, 4, 8, 1, 1)
 
     @Slot()
     def reset_content(self):
         self.text_edit.setText(self.trans)
-
-    @Slot()
-    def update_content(self):
-        content = self.text_edit.toPlainText()
-        indent_size = self.indent_size_box.value()
-        text = addIndent(content, indent_size)
-        self.text_edit.setText(text)
 
     @Slot()
     def update_font_size(self):
@@ -253,13 +186,13 @@ class Window(QDialog):
         killed_pid(self.tts_pid[0])
         killed_pid(self.tts_pid[1])
 
-        # focus to editor window
-        focus_window(self.editor_window_id)
-
-        press_key("Escape")
-        press_key("shift+g")
-        # paste content
-        press_key("p")
+        # # focus to editor window
+        # focus_window(self.editor_window_id)
+        #
+        # press_key("Escape")
+        # press_key("shift+g")
+        # # paste content
+        # press_key("p")
 
         self.close()
 
@@ -282,7 +215,7 @@ class Window(QDialog):
 
 
 if __name__ == "__main__":
-    with open("/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json") as file:
+    with open("/media/lucifer/DATA/My-utilities/config.json") as file:
         config = json.load(file)
 
     if config["editor_window_id"] == 0:
