@@ -10,6 +10,7 @@ def getPID(player: str) -> int:
             .replace("\n", "")
         )
     except CalledProcessError:
+        print("player " + player + " is not running")
         return 0
 
 

@@ -19,4 +19,4 @@ if __name__ == "__main__":
     #     config = json.load(file)["tts"]
     #     run(speed=config["speed"], player=config["player"], tts_mode=config["tts_mode"])
 
-    run(speed=2.0, player="ffmpeg", tts_mode="online")
+    run(speed=2.0, player="ffplay", tts_mode="online")
