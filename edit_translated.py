@@ -1,4 +1,8 @@
-# create a window to edit text and a button copy text to clipboard using PySide6 and can auto adapt to the size of the text
+# create a window to edit text and a button copy text to clipboard
+# using PySide6 and can auto adapt to the size of the text
+import sys
+import json
+
 from PySide6.QtWidgets import (
     QApplication,
     QPushButton,
@@ -13,9 +17,6 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QFont
 from PySide6.QtCore import QSize, Qt, Slot
-import sys
-import json
-import os
 from myLib.copy import getText
 from myLib.normalize_str import removeNewline, removeReturn, removeSpace
 from myLib.translate import trans
@@ -36,17 +37,28 @@ class Window(QDialog):
     tts_pid = [0, 0]
     font_size = 0
     editor_window_id = 0
+    do_after_close = "no"
 
-    def __init__(self, config):
+    def __init__(self):
         super().__init__()
+
+        config_path = "/media/lucifer/DATA/My-utilities/config.json"
+        with open(config_path, "r", encoding="utf-8") as file:
+            config = json.load(file)["edit"]
+
+        if config["editor_window_id"] == 0:
+            print("Config editor PID first")
+            sys.exit()
+
         self.speed = config["speed"]
         self.player = config["player"]
         self.tts_mode = config["tts_mode"]
         self.font_size = config["font_size"]
         self.editor_window_id = config["editor_window_id"]
-        self.initUI()
+        self.do_after_close = config["do_after_close"]
+        self.init_ui()
 
-    def initUI(self):
+    def init_ui(self):
         # set the window size and title
         self.setGeometry(900, 300, 750, round(750 / 1.618))
         self.setWindowTitle("Edit translation")
@@ -72,7 +84,7 @@ class Window(QDialog):
 
         self.speak_button = QPushButton("Speak", self)
         self.speak_button.setFont(QFont("Ubuntu", 14))
-        self.speak_button.clicked.connect(self.speak)
+        self.speak_button.clicked.connect(self._speak)
         self.speak_button.setFixedSize(QSize(60, round(60 / 1.618)))
 
         self.close_button = QPushButton("Close", self)
@@ -112,8 +124,15 @@ class Window(QDialog):
         self.font_size_label = QLabel("Font:")
         self.font_size_label.setFont(QFont("Ubuntu", 14))
 
+        # add label disable/enable action after close
+        self.do_after_close_label = QLabel("Do After Close?")
+        self.do_after_close_label.setFont(QFont("Ubuntu", 14))
+
         # add a checkbox to diable/enable change font size
         self.font_size_checkbox = QCheckBox()
+
+        # add a checkbox to disable/enable action after close
+        self.do_after_close_checkbox = QCheckBox()
 
         # add status bar to resize the window
         self.statusbar = QStatusBar()
@@ -141,7 +160,9 @@ class Window(QDialog):
     @Slot()
     def update_font_size(self):
         size = self.font_size_box.value()
-        if size > 0:
+        is_on = self.font_size_checkbox.isChecked()
+        print(is_on)
+        if size > 0 and is_on:
             self.text_edit.setFont(QFont("Ubuntu", size))
 
     @Slot()
@@ -170,10 +191,12 @@ class Window(QDialog):
         killPIDByID(self.tts_pid[0])
         killPIDByID(self.tts_pid[1])
         self.close()
-        self._after_close()
+
+        if self.do_after_close == "yes":
+            self._after_close()
 
     @Slot()
-    def speak(self):
+    def _speak(self):
         print("speak")
 
         self.tts_pid[0] = getPID(self.player)
@@ -196,15 +219,7 @@ class Window(QDialog):
 
 if __name__ == "__main__":
     # config_path = os.environ["DATA_PATH"] + "/My-utilities/config.json"
-    config_path = "/media/lucifer/DATA/My-utilities/config.json"
-    with open(config_path, "r") as file:
-        config = json.load(file)["edit"]
-
-    if config["editor_window_id"] == 0:
-        print("Config editor PID first")
-        exit()
-
     app = QApplication(sys.argv)
-    window = Window(config)
+    window = Window()
     window.show()
     sys.exit(app.exec())
