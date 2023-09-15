@@ -42,17 +42,17 @@ def split_window(on: str):
 
 def get_dir_path() -> str:
     try:
-        path = os.environ["STATS_PATH"]
+        path = os.environ["DATA_PATH"]
         return path
     except KeyError:
-        print("Please set the environment variable STATS_PATH")
+        print("Please set the environment variable DATA_PATH")
         exit(1)
 
 
 # main
 if __name__ == "__main__":
     # dir_path = "/media/lucifer/STORAGE/IMPORTANT/stats-practices/Stat"
-    dir_path = get_dir_path() + "/Stat"
+    dir_path = get_dir_path() + "/Learning/stats-practices/Stat"
     book_path = dir_path + "/Statistics-Freedman.pdf"
     translate_path = dir_path + "/translate"
 

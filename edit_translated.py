@@ -42,7 +42,7 @@ class Window(QDialog):
     def __init__(self):
         super().__init__()
 
-        config_path = "/media/lucifer/DATA/My-utilities/config.json"
+        config_path = "/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json"
         with open(config_path, "r", encoding="utf-8") as file:
             config = json.load(file)["edit"]
 
