@@ -42,25 +42,31 @@ def split_window(on: str):
 
 def get_dir_path() -> str:
     try:
-        path = os.environ["STATS_PATH"]
+        path = os.environ["DATA_PATH"]
         return path
     except KeyError:
-        print("Please set the environment variable STATS_PATH")
+        print("Please set the environment variable DATA_PATH")
         exit(1)
 
 
 # main
 if __name__ == "__main__":
     # dir_path = "/media/lucifer/STORAGE/IMPORTANT/stats-practices/Stat"
-    dir_path = get_dir_path() + "/Stat"
+    dir_path = get_dir_path() + "/stats-practices/Stat"
     book_path = dir_path + "/book.pdf"
     translate_path = dir_path + "/translate"
+
+    print(f"{book_path} and {translate_path}")
 
     render_cmd = r"mdbook serve --open " + translate_path
     watch_cmd = r"mdbook watch " + translate_path
     edit_cmd = "cd " + translate_path + "/src"
 
-    translate_book(render_cmd=render_cmd, watch_cmd=watch_cmd, edit_cmd=edit_cmd)
+    translate_book(
+        render_cmd=render_cmd,
+        watch_cmd=watch_cmd,
+        edit_cmd=edit_cmd,
+    )
     sleep(1)
     read_book(book=book_path, reader="microsoft-edge")
     sleep(1.5)
