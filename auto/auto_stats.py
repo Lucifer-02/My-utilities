@@ -56,11 +56,17 @@ if __name__ == "__main__":
     book_path = dir_path + "/book.pdf"
     translate_path = dir_path + "/translate"
 
+    print(f"{book_path} and {translate_path}")
+
     render_cmd = r"mdbook serve --open " + translate_path
     watch_cmd = r"mdbook watch " + translate_path
     edit_cmd = "cd " + translate_path + "/src"
 
-    translate_book(render_cmd=render_cmd, watch_cmd=watch_cmd, edit_cmd=edit_cmd)
+    translate_book(
+        render_cmd=render_cmd,
+        watch_cmd=watch_cmd,
+        edit_cmd=edit_cmd,
+    )
     sleep(1)
     read_book(book=book_path, reader="microsoft-edge")
     sleep(1.5)

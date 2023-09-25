@@ -27,6 +27,7 @@ from myLib.xdotool import press_key, focus_window
 
 def normalize(text: str) -> str:
     text = removeSpace(removeReturn(removeNewline(text)))
+    print(text)
     return text
 
 
@@ -63,8 +64,8 @@ class Window(QDialog):
         self.setGeometry(900, 300, 750, round(750 / 1.618))
         self.setWindowTitle("Edit translation")
 
-        self.text = normalize(getText())
-        self.trans = trans(self.text)
+        self.text = getText()
+        self.trans = normalize(trans(self.text))
 
         # create textbox to edit text with default text
         self.text_edit = QTextEdit(self)
@@ -178,13 +179,14 @@ class Window(QDialog):
         self.clipboard.setText(self.text_edit.toPlainText())
 
     def _after_close(self):
-        # focus to editor window
-        focus_window(self.editor_window_id)
-
-        press_key("Escape")
-        press_key("shift+g")
-        # paste content
-        press_key("p")
+        # # focus to editor window
+        # focus_window(self.editor_window_id)
+        #
+        # press_key("Escape")
+        # press_key("shift+g")
+        # # paste content
+        # press_key("p")
+        press_key("ctrl+v")
 
     @Slot()
     def close_window(self):

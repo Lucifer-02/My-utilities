@@ -4,6 +4,7 @@ import pyperclip
 
 def getText() -> str:
     text = check_output(["xsel"], shell=True).decode("utf-8")
+    print(text)
     return text
 
 
