@@ -43,8 +43,8 @@ class Window(QDialog):
         super().__init__()
 
         # config_path = os.environ["DATA_PATH"] + "/My-utilities/config.json"
-        # config_path = "/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json"
-        config_path = "/media/lucifer/DATA/My-utilities/config.json"
+        config_path = "/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json"
+        # config_path = "/media/lucifer/DATA/My-utilities/config.json"
         with open(config_path, "r", encoding="utf-8") as file:
             config = json.load(file)["edit"]
 
@@ -65,7 +65,7 @@ class Window(QDialog):
         self.setGeometry(900, 300, 750, round(750 / 1.618))
         self.setWindowTitle("Edit translation")
 
-        self.text = getText()
+        self.text = normalize(getText())
         self.trans = normalize(trans(self.text))
 
         # create textbox to edit text with default text
@@ -185,6 +185,9 @@ class Window(QDialog):
 
         press_key("Escape")
         press_key("shift+g")
+        press_key("o")
+        press_key("enter")
+        press_key("Escape")
         # paste content
         press_key("p")
         # press_key("ctrl+v")
