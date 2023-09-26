@@ -52,7 +52,7 @@ def get_dir_path() -> str:
 # main
 if __name__ == "__main__":
     # dir_path = "/media/lucifer/STORAGE/IMPORTANT/stats-practices/Stat"
-    dir_path = get_dir_path() + "/Learning/stats-practices/Stat"
+    dir_path = get_dir_path() + "/stats-practices/Stat"
     book_path = dir_path + "/book.pdf"
     translate_path = dir_path + "/translate"
 

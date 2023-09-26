@@ -27,7 +27,6 @@ from myLib.xdotool import press_key, focus_window
 
 def normalize(text: str) -> str:
     text = removeSpace(removeReturn(removeNewline(text)))
-    print(text)
     return text
 
 
@@ -43,7 +42,9 @@ class Window(QDialog):
     def __init__(self):
         super().__init__()
 
-        config_path = "/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json"
+        # config_path = os.environ["DATA_PATH"] + "/My-utilities/config.json"
+        # config_path = "/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json"
+        config_path = "/media/lucifer/DATA/My-utilities/config.json"
         with open(config_path, "r", encoding="utf-8") as file:
             config = json.load(file)["edit"]
 
@@ -179,14 +180,14 @@ class Window(QDialog):
         self.clipboard.setText(self.text_edit.toPlainText())
 
     def _after_close(self):
-        # # focus to editor window
-        # focus_window(self.editor_window_id)
-        #
-        # press_key("Escape")
-        # press_key("shift+g")
-        # # paste content
-        # press_key("p")
-        press_key("ctrl+v")
+        # focus to editor window
+        focus_window(self.editor_window_id)
+
+        press_key("Escape")
+        press_key("shift+g")
+        # paste content
+        press_key("p")
+        # press_key("ctrl+v")
 
     @Slot()
     def close_window(self):
