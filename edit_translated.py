@@ -179,14 +179,14 @@ class Window(QDialog):
         self.clipboard.setText(self.text_edit.toPlainText())
 
     def _after_close(self):
-        # # focus to editor window
-        # focus_window(self.editor_window_id)
-        #
-        # press_key("Escape")
-        # press_key("shift+g")
-        # # paste content
-        # press_key("p")
-        press_key("ctrl+v")
+        # focus to editor window
+        focus_window(self.editor_window_id)
+
+        press_key("Escape")
+        press_key("shift+g")
+        # paste content
+        press_key("p")
+        # press_key("ctrl+v")
 
     @Slot()
     def close_window(self):

@@ -4,8 +4,8 @@
     "player": "ffplay",
     "tts_mode": "online",
     "font_size": 13,
-    "do_after_close": "no",
-    "editor_window_id": 90177569
+    "do_after_close": "yes",
+    "editor_window_id": 62914563
   },
   "tts": {
     "speed": 2,
