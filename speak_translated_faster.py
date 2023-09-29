@@ -5,11 +5,22 @@ from myLib.TTS import tts
 from myLib.pidHandle import killPIDByName
 
 
+def normalize_str(text: str) -> str:
+    text = removeReturn(removeNewline(text))
+    return text
+
+
 def run(speed: float, player: str, tts_mode: str):
     # kill player if it is running
     if not killPIDByName(player):
-        text = getText()
-        translated = trans(removeReturn(removeNewline(text)))
+        text = normalize_str(getText())
+        print(text)
+        translated = trans(
+            source_lang="auto",
+            target_lang="vi",
+            source_text=text,
+            # translator="crow",
+        )
         tts(text=translated, mode=tts_mode, player=player, speed=speed)
 
 
