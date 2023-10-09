@@ -109,11 +109,11 @@ int main() {
   //     "https://translate.googleapis.com/translate_a/"
   //     "single?client=gtx&ie=UTF-8&oe=UTF-8&dt=t&sl=auto&tl=vi&q=game+show";
   char base[] = "https://translate.googleapis.com/translate_a/single";
-  char text[] =
-      "This line is a giveaway: you have named your script json. but "
-      "you are trying to import the builtin module called json, "
-      "?since your script is in the current directory, it comes first "
-      "in sys.path, and so that's the module that gets imported.";
+  char text[] = "Tôi buồn ngủ quá";
+  // "This line is a giveaway: you have named your script json. but "
+  // "you are trying to import the builtin module called json, "
+  // "?since your script is in the current directory, it comes first "
+  // "in sys.path, and so that's the module that gets imported.";
   // "how are your?. What's your name?. Do you love me?. Let's go.";
 
   assert(strlen(base) < BUFFER_SIZE);
@@ -126,15 +126,15 @@ int main() {
                         .oe = "UTF-8",
                         .dt = "t",
                         .sl = "auto",
-                        .tl = "vi",
+                        .tl = "en",
                         .q = normalize_text(text)};
   genarate_url(url, base, params);
-  // printf("url: %s\n", url);
+  printf("url: %s\n", url);
 
   char data[BUFFER_SIZE];
   Translate trans = {.data = data, .size = 0};
   request_trans(&trans, url);
-  // printf("Output: %s, size: %ld\n", trans.data, trans.size);
+  printf("Output: %s, size: %ld\n", trans.data, trans.size);
   char translation[BUFFER_SIZE];
   get_trans(translation, trans.data);
   printf("Translation: %s\n", translation);

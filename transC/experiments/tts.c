@@ -23,14 +23,13 @@ typedef struct {
 } TTSParams;
 
 typedef struct {
-  char *video; // pointer to video in memory
+  char *audio; // pointer to audio in memory
   size_t bytes;
   size_t pos;
-} MemVideoData;
+} MemAudioData;
 
 // Callback function to handle received data
 size_t write_data(void *buffer, size_t size, size_t nmemb, TTS *tts) {
-  // size_t written = fwrite(buffer, size, nmemb, userp);
   size_t written = size * nmemb;
   memcpy(tts->data + tts->size, buffer, written);
   tts->size += written;
@@ -44,6 +43,11 @@ void request_tts(TTS *tts, const char *url) {
 
   CURL *curl = curl_easy_init();
   if (curl) {
+    struct curl_slist *headers = NULL;
+
+    headers = curl_slist_append(
+        headers, "Content-Type: application/json; charset=utf-8");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
 
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
@@ -70,7 +74,7 @@ void genarate_url(char *url, const char *base, const TTSParams params) {
 }
 
 // replace all ' ' characters into '+'
-char *normalize_text(char *text) {
+void normalize_text(char *text) {
   assert(text != NULL);
 
   for (int i = 0; text[i] != '\0'; i++) {
@@ -78,15 +82,14 @@ char *normalize_text(char *text) {
       text[i] = '+';
     }
   }
-  return text;
 }
 
 ssize_t media_read_cb(void *opaque, unsigned char *buf, size_t len) {
-  MemVideoData *mVid = (MemVideoData *)opaque; // cast and give context
+  MemAudioData *mVid = (MemAudioData *)opaque; // cast and give context
 
   size_t copyLen =
       (mVid->bytes - mVid->pos < len) ? mVid->bytes - mVid->pos : len;
-  char *start = mVid->video + mVid->pos;
+  char *start = mVid->audio + mVid->pos;
   memcpy(buf, start, copyLen); // copy bytes requested to buffer.
   mVid->pos += copyLen;
 
@@ -94,8 +97,8 @@ ssize_t media_read_cb(void *opaque, unsigned char *buf, size_t len) {
 }
 
 int media_open_cb(void *opaque, void **datap, uint64_t *sizep) {
-  // cast opaque to our video state struct
-  MemVideoData *mVid = (MemVideoData *)opaque;
+  // cast opaque to our audio state struct
+  MemAudioData *mVid = (MemAudioData *)opaque;
   *sizep = mVid->bytes; // set stream length
   *datap = mVid;
 
@@ -103,7 +106,7 @@ int media_open_cb(void *opaque, void **datap, uint64_t *sizep) {
 }
 
 int media_seek_cb(void *opaque, uint64_t offset) {
-  MemVideoData *mVid = (MemVideoData *)opaque;
+  MemAudioData *mVid = (MemAudioData *)opaque;
   mVid->pos = offset;
   return 0;
 }
@@ -124,7 +127,7 @@ static void handleEvents(const libvlc_event_t *pEvent, void *pUserData) {
   }
 }
 
-void play_audio(MemVideoData mem) {
+void play_audio(MemAudioData mem) {
 
   libvlc_instance_t *vlc;
 
@@ -132,6 +135,7 @@ void play_audio(MemVideoData mem) {
   const char *options[] = {"--quiet"};
 
   vlc = libvlc_new(1, options);
+  // vlc = libvlc_new(0, NULL);
   libvlc_media_t *media =
       libvlc_media_new_callbacks(vlc, media_open_cb, media_read_cb,
                                  media_seek_cb, media_close_cb, (void *)&mem);
@@ -163,9 +167,9 @@ void play_audio(MemVideoData mem) {
   libvlc_release(vlc);
 }
 int main() {
-  char base[] = "https://translate.googleapis.com/translate_tts";
-  char text[] =
-      "how old are you?. What's your name?. Do you love me?. Let's go.";
+  const char base[] = "https://translate.googleapis.com/translate_tts";
+  char text[] = "Bạn có khỏe không? Tên bạn là gì?\0";
+  // "how old are you?. What's your name?. Do you love me?. Let's go.";
   // "This line is a giveaway: you have named your script json. but "
   // "you are trying to import the builtin module called json, "
   // "?since your script is in the current directory, it comes first "
@@ -176,8 +180,7 @@ int main() {
 
   char url[BUFFER_SIZE];
   normalize_text(text);
-  TTSParams params = {
-      .client = "gtx", .ie = "UTF-8", .tl = "en", .q = normalize_text(text)};
+  TTSParams params = {.client = "gtx", .ie = "UTF-8", .tl = "vi", .q = text};
   genarate_url(url, base, params);
   printf("url: %s\n", url);
 
@@ -191,7 +194,7 @@ int main() {
   // fclose(fp);
 
   // ---------------------------------------
-  MemVideoData mem = {.video = tts.data, .bytes = tts.size, .pos = 0};
+  MemAudioData mem = {.audio = tts.data, .bytes = tts.size, .pos = 0};
 
   play_audio(mem);
 

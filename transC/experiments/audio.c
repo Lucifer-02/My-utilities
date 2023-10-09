@@ -43,7 +43,7 @@ void media_close_cb(void *opaque) {}
 int loadFileToMem(const char *filePath, char **fileInRam) {
   int bytes = 0;
 
-  FILE *file = fopen("media/audio.mp3", "r");
+  FILE *file = fopen("../media/audio.mp3", "r");
 
   if (NULL == file) {
     return -1;
