@@ -138,5 +138,6 @@ int main() {
   char translation[BUFFER_SIZE];
   get_trans(translation, trans.data);
   printf("Translation: %s\n", translation);
+
   return 0;
 }
