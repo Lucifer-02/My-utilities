@@ -1,12 +1,12 @@
-
 #include <assert.h>
 #include <ctype.h>
-#include <curl/curl.h>
-#include <jansson.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include <curl/curl.h>
+#include <jansson.h>
 #include <vlc/vlc.h>
 
 #define TRANS_BUFFER_SIZE 1024
@@ -63,6 +63,33 @@ void request_trans(Translate *trans, const char *url) {
   assert(trans->size != 0);
 }
 
+void url_encode(const char *input, int len, char *output) {
+
+  int pos = 0;
+
+  for (int i = 0; i < len; i++) {
+    unsigned char ch = input[i];
+
+    // printf("char: %02x\n", ch);
+
+    if (('A' <= ch && ch <= 'Z') || ('a' <= ch && ch <= 'z') ||
+        ('0' <= ch && ch <= '9')) {
+      output[pos++] = ch;
+    } else if (ch == ' ') {
+      output[pos++] = '+';
+    } else if (ch == '-' || ch == '_' || ch == '.' || ch == '!' || ch == '~' ||
+               ch == '*' || ch == '\'' || ch == '(' || ch == ')') {
+      output[pos++] = ch;
+    }
+
+    else {
+      sprintf(output + pos, "%%%02X", ch);
+      pos += 3;
+    }
+  }
+
+  output[pos++] = '\0'; // Null-terminate the encoded string
+}
 void genarate_trans_url(char *url, const char *base, const TransParams params) {
   assert(base != NULL);
   assert(params.client != NULL && params.ie != NULL && params.oe != NULL &&
@@ -269,8 +296,8 @@ void trans(char *translation, char text[]) {
                         .ie = "UTF-8",
                         .oe = "UTF-8",
                         .dt = "t",
-                        .sl = "auto",
-                        .tl = "en",
+                        .sl = "en",
+                        .tl = "vi",
                         .q = text};
   genarate_trans_url(url, base, params);
   printf("url: %s\n", url);
@@ -295,10 +322,11 @@ void tts(char *translation) {
   assert(strlen(translation) < TTS_BUFFER_SIZE);
 
   char url[TTS_BUFFER_SIZE];
-  normalize_text(translation);
+  char normalized_text[TTS_BUFFER_SIZE];
+  url_encode(translation, strlen(translation), normalized_text);
   printf("%s\n", translation);
   TTSParams tts_params = {
-      .client = "gtx", .ie = "UTF-8", .tl = "en", .q = translation};
+      .client = "gtx", .ie = "UTF-8", .tl = "vi", .q = normalized_text};
   genarate_tts_url(url, tts_base, tts_params);
   printf("url: %s\n", url);
 
@@ -313,19 +341,18 @@ void tts(char *translation) {
   play_audio(mem);
 }
 
-int main() {
-  char text[] =
-      // "xin cam on\0";
-      // hôm nay thế nào? ngày mai đi phỏng vấn nhớ chuẩn bị "
-      // "chu đáo nhé!";
-      "how old are you?. What's your name?. Do you love me?. Let's go.";
+int main(int argc, char *argv[]) {
+  // char text[] =
+  // "Xin chào";
+  // "xin cam on, ban ten la gi?\0";
+  // "how old are you?. What's your name?. Do you love me?. Let's go.";
   // "This line is a giveaway: you have named your script json. but "
   // "you are trying to import the builtin module called json, "
   // "?since your script is in the current directory, it comes first "
   // "in sys.path, and so that's the module that gets imported.";
   //
   char translation[TRANS_BUFFER_SIZE];
-  trans(translation, text);
+  trans(translation, argv[1]);
   printf("Translation: %s\n", translation);
   tts(translation);
 

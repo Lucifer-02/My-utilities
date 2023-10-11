@@ -24,6 +24,33 @@ typedef struct {
   char *q;
 } TransParams;
 
+void url_encode(const char *input, int len, char *output) {
+
+  int pos = 0;
+
+  for (int i = 0; i < len; i++) {
+    unsigned char ch = input[i];
+
+    // printf("char: %02x\n", ch);
+
+    if (('A' <= ch && ch <= 'Z') || ('a' <= ch && ch <= 'z') ||
+        ('0' <= ch && ch <= '9')) {
+      output[pos++] = ch;
+    } else if (ch == ' ') {
+      output[pos++] = '+';
+    } else if (ch == '-' || ch == '_' || ch == '.' || ch == '!' || ch == '~' ||
+               ch == '*' || ch == '\'' || ch == '(' || ch == ')') {
+      output[pos++] = ch;
+    }
+
+    else {
+      sprintf(output + pos, "%%%02X", ch);
+      pos += 3;
+    }
+  }
+
+  output[pos++] = '\0'; // Null-terminate the encoded string
+}
 // Callback function to handle received data
 size_t write_data(void *ptr, size_t size, size_t nmemb, Translate *trans) {
   assert(trans->data != NULL);
@@ -45,10 +72,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, Translate *trans) {
 void request_trans(Translate *trans, const char *url) {
   CURL *curl = curl_easy_init();
   if (curl) {
-    curl_easy_setopt(
-        curl, CURLOPT_URL,
-        "https://translate.googleapis.com/translate_a/"
-        "single?client=gtx&ie=UTF-8&oe=UTF-8&dt=t&sl=vi&tl=en&q=xin");
+    curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, trans);
     CURLcode res = curl_easy_perform(curl);
@@ -60,29 +84,6 @@ void request_trans(Translate *trans, const char *url) {
   }
   assert(trans->data != NULL);
   assert(trans->size != 0);
-}
-
-void genarate_url(char *url, const char *base, const TransParams params) {
-  assert(base != NULL);
-  assert(params.client != NULL && params.ie != NULL && params.oe != NULL &&
-         params.dt != NULL && params.sl != NULL && params.tl != NULL &&
-         params.q != NULL);
-
-  sprintf(url, "%s?client=%s&ie=%s&oe=%s&dt=%s&sl=%s&tl=%s&q=%s", base,
-          params.client, params.ie, params.oe, params.dt, params.sl, params.tl,
-          params.q);
-}
-
-// replace all ' ' characters into '+'
-char *normalize_text(char *text) {
-  assert(text != NULL);
-
-  for (int i = 0; text[i] != '\0'; i++) {
-    if (isblank(text[i])) {
-      text[i] = '+';
-    }
-  }
-  return text;
 }
 
 void get_trans(char *translation, const char *json_string) {
@@ -108,6 +109,41 @@ void get_trans(char *translation, const char *json_string) {
   json_decref(root);
 }
 
+char *urlencode(char *originalText) {
+  // allocate memory for the worst possible case (all characters need to be
+  // encoded)
+  char *encodedText =
+      (char *)malloc(sizeof(char) * strlen(originalText) * 3 + 1);
+
+  const char *hex = "0123456789abcdef";
+
+  int pos = 0;
+  for (int i = 0; i < strlen(originalText); i++) {
+    if (('a' <= originalText[i] && originalText[i] <= 'z') ||
+        ('A' <= originalText[i] && originalText[i] <= 'Z') ||
+        ('0' <= originalText[i] && originalText[i] <= '9')) {
+      encodedText[pos++] = originalText[i];
+    } else {
+      encodedText[pos++] = '%';
+      encodedText[pos++] = hex[originalText[i] >> 4];
+      encodedText[pos++] = hex[originalText[i] & 15];
+    }
+  }
+  encodedText[pos] = '\0';
+  return encodedText;
+}
+
+void genarate_url(char *url, const char *base, const TransParams params) {
+  assert(base != NULL);
+  assert(params.client != NULL && params.ie != NULL && params.oe != NULL &&
+         params.dt != NULL && params.sl != NULL && params.tl != NULL &&
+         params.q != NULL);
+
+  sprintf(url, "%s?client=%s&ie=%s&oe=%s&dt=%s&sl=%s&tl=%s&q=%s", base,
+          params.client, params.ie, params.oe, params.dt, params.sl, params.tl,
+          params.q);
+}
+
 int main() {
   // char url[] =
   //     "https://translate.googleapis.com/translate_a/"
@@ -124,16 +160,20 @@ int main() {
   assert(strlen(text) < BUFFER_SIZE);
 
   char url[BUFFER_SIZE];
-  normalize_text(text);
+  char normalized_text[BUFFER_SIZE];
+  // normalize_text(text);
+  url_encode(text, strlen(text), normalized_text);
+  printf("Normalized: %s\n", normalized_text);
   TransParams params = {.client = "gtx",
                         .ie = "UTF-8",
                         .oe = "UTF-8",
                         .dt = "t",
                         .sl = "vi",
                         .tl = "en",
-                        .q = text};
+                        .q = normalized_text};
+
   genarate_url(url, base, params);
-  // printf("url: %s\n", url);
+  printf("url: %s\n", url);
 
   char data[BUFFER_SIZE];
   Translate trans = {.data = data, .size = 0};

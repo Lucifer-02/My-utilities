@@ -73,6 +73,33 @@ void genarate_url(char *url, const char *base, const TTSParams params) {
           params.tl, params.q);
 }
 
+void url_encode(const char *input, int len, char *output) {
+
+  int pos = 0;
+
+  for (int i = 0; i < len; i++) {
+    unsigned char ch = input[i];
+
+    // printf("char: %02x\n", ch);
+
+    if (('A' <= ch && ch <= 'Z') || ('a' <= ch && ch <= 'z') ||
+        ('0' <= ch && ch <= '9')) {
+      output[pos++] = ch;
+    } else if (ch == ' ') {
+      output[pos++] = '+';
+    } else if (ch == '-' || ch == '_' || ch == '.' || ch == '!' || ch == '~' ||
+               ch == '*' || ch == '\'' || ch == '(' || ch == ')') {
+      output[pos++] = ch;
+    }
+
+    else {
+      sprintf(output + pos, "%%%02X", ch);
+      pos += 3;
+    }
+  }
+
+  output[pos++] = '\0'; // Null-terminate the encoded string
+}
 // replace all ' ' characters into '+'
 void normalize_text(char *text) {
   assert(text != NULL);
@@ -179,8 +206,12 @@ int main() {
   assert(strlen(text) < BUFFER_SIZE);
 
   char url[BUFFER_SIZE];
-  normalize_text(text);
-  TTSParams params = {.client = "gtx", .ie = "UTF-8", .tl = "vi", .q = text};
+  // normalize_text(text);
+  char normalized_text[BUFFER_SIZE];
+  // normalize_text(text);
+  url_encode(text, strlen(text), normalized_text);
+  TTSParams params = {
+      .client = "gtx", .ie = "UTF-8", .tl = "vi", .q = normalized_text};
   genarate_url(url, base, params);
   printf("url: %s\n", url);
 
