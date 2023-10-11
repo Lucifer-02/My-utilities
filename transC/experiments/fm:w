@@ -45,10 +45,13 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, Translate *trans) {
 void request_trans(Translate *trans, const char *url) {
   CURL *curl = curl_easy_init();
   if (curl) {
-    curl_easy_setopt(
-        curl, CURLOPT_URL,
-        "https://translate.googleapis.com/translate_a/"
-        "single?client=gtx&ie=UTF-8&oe=UTF-8&dt=t&sl=vi&tl=en&q=xin");
+    curl_easy_setopt(curl, CURLOPT_URL, url);
+    struct curl_slist *headers = NULL;
+    headers = curl_slist_append(
+        headers,
+        "Content-Type: application/x-www-form-urlencoded; charset=utf-8");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "content=derinhält&date=asdf");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, trans);
     CURLcode res = curl_easy_perform(curl);
@@ -113,7 +116,7 @@ int main() {
   //     "https://translate.googleapis.com/translate_a/"
   //     "single?client=gtx&ie=UTF-8&oe=UTF-8&dt=t&sl=auto&tl=vi&q=game+show";
   char base[] = "https://translate.googleapis.com/translate_a/single";
-  char text[] = "xin chào";
+  char text[] = "xin chào\0";
   // "This line is a giveaway: you have named your script json. but "
   // "you are trying to import the builtin module called json, "
   // "?since your script is in the current directory, it comes first "
@@ -131,7 +134,7 @@ int main() {
                         .dt = "t",
                         .sl = "vi",
                         .tl = "en",
-                        .q = text};
+                        .q = normalize_text(text)};
   genarate_url(url, base, params);
   // printf("url: %s\n", url);
 
