@@ -101,17 +101,6 @@ void genarate_trans_url(char *url, const char *base, const TransParams params) {
           params.q);
 }
 
-// replace all ' ' characters into '+'
-void normalize_text(char *text) {
-  assert(text != NULL);
-
-  for (int i = 0; text[i] != '\0'; i++) {
-    if (isblank(text[i])) {
-      text[i] = '+';
-    }
-  }
-}
-
 void get_trans(char *translation, const char *json_string) {
 
   json_t *root = json_loads(json_string, 0, NULL);
@@ -291,14 +280,15 @@ void trans(char *translation, char text[]) {
   assert(strlen(text) < TRANS_BUFFER_SIZE);
 
   char url[TRANS_BUFFER_SIZE];
-  normalize_text(text);
+  char normalized_text[TRANS_BUFFER_SIZE];
+  url_encode(text, strlen(text), normalized_text);
   TransParams params = {.client = "gtx",
                         .ie = "UTF-8",
                         .oe = "UTF-8",
                         .dt = "t",
                         .sl = "en",
                         .tl = "vi",
-                        .q = text};
+                        .q = normalized_text};
   genarate_trans_url(url, base, params);
   printf("url: %s\n", url);
 
@@ -351,6 +341,11 @@ int main(int argc, char *argv[]) {
   // "?since your script is in the current directory, it comes first "
   // "in sys.path, and so that's the module that gets imported.";
   //
+  if (argc < 2) {
+    printf("Please run with arguments!!!\n");
+    exit(0);
+  }
+
   char translation[TRANS_BUFFER_SIZE];
   trans(translation, argv[1]);
   printf("Translation: %s\n", translation);
