@@ -12,7 +12,7 @@
 typedef struct {
   char *data;
   size_t size;
-} Translate;
+} Text;
 
 typedef struct {
   char *client;
@@ -21,15 +21,19 @@ typedef struct {
   char *dt;
   char *sl;
   char *tl;
-  char *q;
 } TransParams;
 
-void url_encode(const char *input, int len, char *output) {
+// Warning: May can't handle all cases. See https://www.url-encode-decode.com/
+void url_encode(const Text text, char *output) {
+
+  assert(output != NULL);
+  assert(text.size != 0);
+  assert(text.data != NULL);
 
   int pos = 0;
 
-  for (int i = 0; i < len; i++) {
-    unsigned char ch = input[i];
+  for (int i = 0; i < text.size; i++) {
+    unsigned char ch = text.data[i];
 
     // printf("char: %02x\n", ch);
 
@@ -41,9 +45,7 @@ void url_encode(const char *input, int len, char *output) {
     } else if (ch == '-' || ch == '_' || ch == '.' || ch == '!' || ch == '~' ||
                ch == '*' || ch == '\'' || ch == '(' || ch == ')') {
       output[pos++] = ch;
-    }
-
-    else {
+    } else {
       sprintf(output + pos, "%%%02X", ch);
       pos += 3;
     }
@@ -52,29 +54,24 @@ void url_encode(const char *input, int len, char *output) {
   output[pos++] = '\0'; // Null-terminate the encoded string
 }
 // Callback function to handle received data
-size_t write_data(void *ptr, size_t size, size_t nmemb, Translate *trans) {
-  assert(trans->data != NULL);
+size_t write_data(void *ptr, size_t size, size_t nmemb, Text *resp) {
+  assert(resp->data != NULL);
   assert(size < BUFFER_SIZE);
 
-  size_t new_size = trans->size + size * nmemb;
-  // trans->data = realloc(trans->data, new_size + 1);
-  // if (trans->data == NULL) {
-  //   fprintf(stderr, "Failed to allocate memory\n");
-  //   return 0;
-  // }
-  memcpy(trans->data + trans->size, ptr, size * nmemb);
-  trans->size = new_size;
-  trans->data[trans->size] = '\0';
+  size_t new_size = resp->size + size * nmemb;
+  memcpy(resp->data + resp->size, ptr, size * nmemb);
+  resp->size = new_size;
+  resp->data[resp->size] = '\0';
   return size * nmemb;
 }
 
 // Function to perform translation request using Google Translate API
-void request_trans(Translate *trans, const char *url) {
+void request_trans(Text *resp, const char *url) {
   CURL *curl = curl_easy_init();
   if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
-    curl_easy_setopt(curl, CURLOPT_WRITEDATA, trans);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, resp);
     CURLcode res = curl_easy_perform(curl);
     if (res != CURLE_OK) {
       fprintf(stderr, "curl_easy_perform() failed: %s\n",
@@ -82,13 +79,12 @@ void request_trans(Translate *trans, const char *url) {
     }
     curl_easy_cleanup(curl);
   }
-  assert(trans->data != NULL);
-  assert(trans->size != 0);
+  assert(resp->data != NULL);
+  assert(resp->size != 0);
 }
 
-void get_trans(char *translation, const char *json_string) {
-
-  json_t *root = json_loads(json_string, 0, NULL);
+void parse_resp(Text json_string, Text *output) {
+  json_t *root = json_loads(json_string.data, 0, NULL);
   json_t *array = json_array_get(root, 0);
 
   size_t offset = 0;
@@ -100,88 +96,79 @@ void get_trans(char *translation, const char *json_string) {
 
     const char *paragaph = json_string_value(chunk);
     size_t para_size = json_string_length(chunk);
-    memcpy(translation + offset, paragaph, para_size);
+    memcpy(output->data + offset, paragaph, para_size);
     offset += para_size;
   }
 
-  translation[offset] = '\0';
+  output->data[offset] = '\0';
+  output->size = offset;
 
   json_decref(root);
 }
 
-char *urlencode(char *originalText) {
-  // allocate memory for the worst possible case (all characters need to be
-  // encoded)
-  char *encodedText =
-      (char *)malloc(sizeof(char) * strlen(originalText) * 3 + 1);
+void get_trans(Text *trans, Text resp) {
 
-  const char *hex = "0123456789abcdef";
+  assert(trans != NULL);
+  assert(resp.size != 0);
 
-  int pos = 0;
-  for (int i = 0; i < strlen(originalText); i++) {
-    if (('a' <= originalText[i] && originalText[i] <= 'z') ||
-        ('A' <= originalText[i] && originalText[i] <= 'Z') ||
-        ('0' <= originalText[i] && originalText[i] <= '9')) {
-      encodedText[pos++] = originalText[i];
-    } else {
-      encodedText[pos++] = '%';
-      encodedText[pos++] = hex[originalText[i] >> 4];
-      encodedText[pos++] = hex[originalText[i] & 15];
-    }
-  }
-  encodedText[pos] = '\0';
-  return encodedText;
+  parse_resp(resp, trans);
+
+  assert(trans->size != 0);
 }
 
-void genarate_url(char *url, const char *base, const TransParams params) {
-  assert(base != NULL);
-  assert(params.client != NULL && params.ie != NULL && params.oe != NULL &&
-         params.dt != NULL && params.sl != NULL && params.tl != NULL &&
-         params.q != NULL);
-
-  sprintf(url, "%s?client=%s&ie=%s&oe=%s&dt=%s&sl=%s&tl=%s&q=%s", base,
-          params.client, params.ie, params.oe, params.dt, params.sl, params.tl,
-          params.q);
-}
-
-int main() {
+void genarate_url(char *url, const TransParams params, Text text) {
   // char url[] =
   //     "https://translate.googleapis.com/translate_a/"
   //     "single?client=gtx&ie=UTF-8&oe=UTF-8&dt=t&sl=auto&tl=vi&q=game+show";
-  char base[] = "https://translate.googleapis.com/translate_a/single";
-  char text[] = "xin chào";
+  //
+  const char base[] = "https://translate.googleapis.com/translate_a/single";
+  assert(base != NULL);
+  assert(params.client != NULL && params.ie != NULL && params.oe != NULL &&
+         params.dt != NULL && params.sl != NULL && params.tl != NULL);
+
+  sprintf(url, "%s?client=%s&ie=%s&oe=%s&dt=%s&sl=%s&tl=%s&q=", base,
+          params.client, params.ie, params.oe, params.dt, params.sl, params.tl);
+
+  size_t len = strlen(url);
+  url_encode(text, url + len);
+}
+
+int main() {
+  char text[] = "ai? tôi là ai?";
+
+  // "xin chào, tên tôi là Hoàng.. Bạn có khỏe không? Chiều nay ta "
+  // "có hẹn tại ";
   // "This line is a giveaway: you have named your script json. but "
   // "you are trying to import the builtin module called json, "
   // "?since your script is in the current directory, it comes first "
   // "in sys.path, and so that's the module that gets imported.";
   // "how are your?. What's your name?. Do you love me?. Let's go.";
+  size_t source_len = strlen(text);
+  Text source = {.data = text, .size = source_len};
 
-  assert(strlen(base) < BUFFER_SIZE);
-  assert(strlen(text) < BUFFER_SIZE);
+  assert(source_len < BUFFER_SIZE);
+  assert(source_len != 0);
 
   char url[BUFFER_SIZE];
-  char normalized_text[BUFFER_SIZE];
-  // normalize_text(text);
-  url_encode(text, strlen(text), normalized_text);
-  printf("Normalized: %s\n", normalized_text);
   TransParams params = {.client = "gtx",
                         .ie = "UTF-8",
                         .oe = "UTF-8",
                         .dt = "t",
                         .sl = "vi",
-                        .tl = "en",
-                        .q = normalized_text};
+                        .tl = "en"};
 
-  genarate_url(url, base, params);
-  printf("url: %s\n", url);
+  genarate_url(url, params, source);
+  // printf("url: %s\n", url);
 
   char data[BUFFER_SIZE];
-  Translate trans = {.data = data, .size = 0};
-  request_trans(&trans, url);
-  printf("Output: %s, size: %ld\n", trans.data, trans.size);
-  char translation[BUFFER_SIZE];
-  get_trans(translation, trans.data);
-  printf("Translation: %s\n", translation);
+  Text resp = {.data = data, .size = 0};
 
-  return 0;
+  request_trans(&resp, url);
+  // printf("Output: %s, size: %ld\n", resp.data, resp.size);
+
+  char translation[BUFFER_SIZE];
+  Text trans = {.data = translation, .size = 0};
+
+  get_trans(&trans, resp);
+  printf("Translation: %s\n", trans.data);
 }

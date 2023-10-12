@@ -290,7 +290,7 @@ void trans(char *translation, char text[]) {
                         .tl = "vi",
                         .q = normalized_text};
   genarate_trans_url(url, base, params);
-  printf("url: %s\n", url);
+  // printf("url: %s\n", url);
 
   char data[TRANS_BUFFER_SIZE];
   Translate trans = {.data = data, .size = 0};

@@ -1,10 +1,12 @@
 #include <assert.h>
 #include <ctype.h>
-#include <curl/curl.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+#include <curl/curl.h>
 #include <vlc/vlc.h>
 
 #define BUFFER_SIZE 1048576 // 1Mb
@@ -12,14 +14,13 @@
 // Struct to hold translated data and its size
 typedef struct {
   char *data;
-  size_t size;
-} TTS;
+  int size;
+} Text;
 
 typedef struct {
   char *client;
   char *ie;
   char *tl;
-  char *q;
 } TTSParams;
 
 typedef struct {
@@ -29,7 +30,7 @@ typedef struct {
 } MemAudioData;
 
 // Callback function to handle received data
-size_t write_data(void *buffer, size_t size, size_t nmemb, TTS *tts) {
+size_t write_data(void *buffer, size_t size, size_t nmemb, Text *tts) {
   size_t written = size * nmemb;
   memcpy(tts->data + tts->size, buffer, written);
   tts->size += written;
@@ -37,18 +38,12 @@ size_t write_data(void *buffer, size_t size, size_t nmemb, TTS *tts) {
 }
 
 // Function to perform translation request using Google Translate API
-void request_tts(TTS *tts, const char *url) {
+void request_tts(Text *tts, const char *url) {
   assert(tts != NULL);
   assert(url != NULL);
 
   CURL *curl = curl_easy_init();
   if (curl) {
-    struct curl_slist *headers = NULL;
-
-    headers = curl_slist_append(
-        headers, "Content-Type: application/json; charset=utf-8");
-    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, tts);
@@ -64,21 +59,17 @@ void request_tts(TTS *tts, const char *url) {
   assert(tts->size != 0);
 }
 
-void genarate_url(char *url, const char *base, const TTSParams params) {
-  assert(base != NULL);
-  assert(params.client != NULL && params.ie != NULL && params.tl != NULL &&
-         params.q != NULL);
+// Warning: May can't handle all cases. See https://www.url-encode-decode.com/
+void url_encode(const Text text, char *output) {
 
-  sprintf(url, "%s?client=%s&ie=%s&tl=%s&q=%s", base, params.client, params.ie,
-          params.tl, params.q);
-}
-
-void url_encode(const char *input, int len, char *output) {
+  assert(output != NULL);
+  assert(text.size != 0);
+  assert(text.data != NULL);
 
   int pos = 0;
 
-  for (int i = 0; i < len; i++) {
-    unsigned char ch = input[i];
+  for (int i = 0; i < text.size; i++) {
+    unsigned char ch = text.data[i];
 
     // printf("char: %02x\n", ch);
 
@@ -90,9 +81,7 @@ void url_encode(const char *input, int len, char *output) {
     } else if (ch == '-' || ch == '_' || ch == '.' || ch == '!' || ch == '~' ||
                ch == '*' || ch == '\'' || ch == '(' || ch == ')') {
       output[pos++] = ch;
-    }
-
-    else {
+    } else {
       sprintf(output + pos, "%%%02X", ch);
       pos += 3;
     }
@@ -100,15 +89,17 @@ void url_encode(const char *input, int len, char *output) {
 
   output[pos++] = '\0'; // Null-terminate the encoded string
 }
-// replace all ' ' characters into '+'
-void normalize_text(char *text) {
-  assert(text != NULL);
+void genarate_url(char *url, const TTSParams params, Text text) {
+  const char base[] = "https://translate.googleapis.com/translate_tts";
 
-  for (int i = 0; text[i] != '\0'; i++) {
-    if (isblank(text[i])) {
-      text[i] = '+';
-    }
-  }
+  assert(base != NULL);
+  assert(params.client != NULL && params.ie != NULL && params.tl != NULL);
+
+  sprintf(url, "%s?client=%s&ie=%s&tl=%s&q=", base, params.client, params.ie,
+          params.tl);
+
+  int len = strlen(url);
+  url_encode(text, url + len);
 }
 
 ssize_t media_read_cb(void *opaque, unsigned char *buf, size_t len) {
@@ -163,6 +154,7 @@ void play_audio(MemAudioData mem) {
 
   vlc = libvlc_new(1, options);
   // vlc = libvlc_new(0, NULL);
+
   libvlc_media_t *media =
       libvlc_media_new_callbacks(vlc, media_open_cb, media_read_cb,
                                  media_seek_cb, media_close_cb, (void *)&mem);
@@ -176,14 +168,12 @@ void play_audio(MemAudioData mem) {
 
   // play the media_player
   libvlc_media_player_play(mediaPlayer);
-  // Register event manager
+
+  // // Register event manager
   libvlc_event_manager_t *eventManager =
       libvlc_media_player_event_manager(mediaPlayer);
   libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, handleEvents,
                       mediaPlayer);
-
-  // play the media_player
-  libvlc_media_player_play(mediaPlayer);
 
   sleep(1);
   // Main event loop
@@ -193,41 +183,115 @@ void play_audio(MemAudioData mem) {
   // Free vlc
   libvlc_release(vlc);
 }
+
+bool is_end_sentence(const char *text) {
+  if ((text[0] == '?' || text[0] == '.') && isspace(text[1])) {
+    return true;
+  }
+  return false;
+}
+
+Text tok(char *text, int len, int limit) {
+
+  int blank_pos = 0;
+  int end_sentence_pos = 0;
+  int count = 0;
+  const int start = 0;
+  int end = 0;
+  int pos = 0;
+
+  // printf("Origin:\n");
+  // fwrite(text, 1, len, stdout);
+  // printf("\nlen: %d\nEnd\n", len);
+
+  if (len <= limit) {
+    return (Text){.data = text, .size = len};
+  }
+
+  while (true) {
+
+    if (isspace(text[pos])) {
+      blank_pos = pos;
+    }
+
+    if (is_end_sentence(text + pos)) {
+
+      end_sentence_pos = pos;
+    }
+
+    if (count == limit) {
+      end = fmax(blank_pos - 1, end_sentence_pos);
+      // end = end_sentence_pos;
+      assert(start < end);
+      return (Text){.data = text, .size = end - start + 1};
+    }
+
+    if (pos == len - 1) {
+      end = pos;
+      return (Text){.data = text, .size = end - start + 1};
+    }
+    count++;
+    pos++;
+  }
+}
+
 int main() {
-  const char base[] = "https://translate.googleapis.com/translate_tts";
-  char text[] = "Bạn có khỏe không? Tên bạn là gì?\0";
+  char text[] =
+      // "Bạn có khỏe không? Tên bạn là gì?";
+      "ASCII là viết tắt của Mã tiêu chuẩn Mỹ để trao đổi thông tin. Máy tính "
+      "chỉ có thể hiểu được các con số, vì vậy mã ASCII là sự biểu diễn bằng "
+      "số của một ký tự như 'a' hoặc '@' hoặc một hành động nào đó. ASCII đã "
+      "được phát triển từ lâu và hiện nay các ký tự không in được hiếm khi "
+      "được sử dụng cho mục đích ban đầu của chúng. Dưới đây là bảng ký tự "
+      "ASCII và bảng này bao gồm các mô tả về 32 ký tự không in được đầu tiên. "
+      "ASCII thực sự được thiết kế để sử dụng với teletypes và do đó các mô tả "
+      "có phần mơ hồ. Tuy nhiên, nếu ai đó nói rằng họ muốn CV của bạn ở định "
+      "dạng ASCII, tất cả điều này có nghĩa là họ muốn văn bản 'thuần túy' "
+      "không có định dạng như tab, in đậm hoặc gạch dưới - định dạng thô mà "
+      "bất kỳ máy tính nào cũng có thể hiểu được. Điều này thường là để họ có "
+      "thể dễ dàng nhập tệp vào ứng dụng của riêng mình mà không gặp vấn đề "
+      "gì. Notepad.exe tạo văn bản ASCII hoặc trong MS Word bạn có thể lưu tệp "
+      "dưới dạng 'chỉ văn bản'";
+
   // "how old are you?. What's your name?. Do you love me?. Let's go.";
   // "This line is a giveaway: you have named your script json. but "
   // "you are trying to import the builtin module called json, "
   // "?since your script is in the current directory, it comes first "
   // "in sys.path, and so that's the module that gets imported.";
 
-  assert(strlen(base) < BUFFER_SIZE);
-  assert(strlen(text) < BUFFER_SIZE);
+  int trans_len = strlen(text);
+  assert(trans_len < BUFFER_SIZE);
+  assert(trans_len != 0);
 
   char url[BUFFER_SIZE];
-  // normalize_text(text);
-  char normalized_text[BUFFER_SIZE];
-  // normalize_text(text);
-  url_encode(text, strlen(text), normalized_text);
-  TTSParams params = {
-      .client = "gtx", .ie = "UTF-8", .tl = "vi", .q = normalized_text};
-  genarate_url(url, base, params);
-  printf("url: %s\n", url);
+  Text trans = {.data = text, .size = trans_len};
+  TTSParams params = {.client = "gtx", .ie = "UTF-8", .tl = "vi"};
 
+  const int limit = 250;
+  char *pointer = trans.data + 0;
+  int size = trans.size - 0;
   char data[BUFFER_SIZE];
-  TTS tts = {.data = data, .size = 0};
-  request_tts(&tts, url);
-  printf("TTS: %s, size: %ld\n", tts.data, tts.size);
 
-  // FILE *fp = fopen("audio.mp3", "wb");
-  // fwrite(tts.data, 1, tts.size, fp);
-  // fclose(fp);
+  while (size > 0) {
+    Text slice = tok(pointer, size, limit);
+    fwrite(slice.data, 1, slice.size, stdout);
+    printf("\n");
+    // printf("\nlen: %d\n", slice.size);
+    genarate_url(url, params, slice);
+    // printf("url: %s\n", url);
+    pointer = slice.data + slice.size + 1;
+    size -= slice.size + 1;
+    // printf("Remain: %d\n", size);
+    //
+    Text resp = {.data = data, .size = 0};
+    request_tts(&resp, url);
+    // printf("TTS: %s, size: %d\n", resp.data, resp.size);
 
-  // ---------------------------------------
-  MemAudioData mem = {.audio = tts.data, .bytes = tts.size, .pos = 0};
+    // ---------------------------------------
+    MemAudioData mem = {.audio = resp.data, .bytes = resp.size, .pos = 0};
 
-  play_audio(mem);
+    play_audio(mem);
+  }
 
   return 0;
 }
