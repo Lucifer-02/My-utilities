@@ -15,7 +15,7 @@
 typedef struct {
   char *data;
   size_t size;
-} Translate;
+} Text;
 
 typedef struct {
   char *client;
@@ -28,8 +28,7 @@ typedef struct {
 } TransParams;
 
 // Callback function to handle received data
-size_t write_trans_data(void *ptr, size_t size, size_t nmemb,
-                        Translate *trans) {
+size_t write_trans_data(void *ptr, size_t size, size_t nmemb, Text *trans) {
   assert(trans->data != NULL);
   assert(size < TRANS_BUFFER_SIZE);
 
@@ -46,7 +45,7 @@ size_t write_trans_data(void *ptr, size_t size, size_t nmemb,
 }
 
 // Function to perform translation request using Google Translate API
-void request_trans(Translate *trans, const char *url) {
+void request_trans(Text *trans, const char *url) {
   CURL *curl = curl_easy_init();
   if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -63,12 +62,16 @@ void request_trans(Translate *trans, const char *url) {
   assert(trans->size != 0);
 }
 
-void url_encode(const char *input, int len, char *output) {
+void url_encode(const Text text, char *output) {
+
+  assert(output != NULL);
+  assert(text.size != 0);
+  assert(text.data != NULL);
 
   int pos = 0;
 
-  for (int i = 0; i < len; i++) {
-    unsigned char ch = input[i];
+  for (int i = 0; i < text.size; i++) {
+    unsigned char ch = text.data[i];
 
     // printf("char: %02x\n", ch);
 
@@ -80,9 +83,7 @@ void url_encode(const char *input, int len, char *output) {
     } else if (ch == '-' || ch == '_' || ch == '.' || ch == '!' || ch == '~' ||
                ch == '*' || ch == '\'' || ch == '(' || ch == ')') {
       output[pos++] = ch;
-    }
-
-    else {
+    } else {
       sprintf(output + pos, "%%%02X", ch);
       pos += 3;
     }
@@ -90,6 +91,7 @@ void url_encode(const char *input, int len, char *output) {
 
   output[pos++] = '\0'; // Null-terminate the encoded string
 }
+
 void genarate_trans_url(char *url, const char *base, const TransParams params) {
   assert(base != NULL);
   assert(params.client != NULL && params.ie != NULL && params.oe != NULL &&
@@ -175,13 +177,17 @@ void request_tts(TTS *tts, const char *url) {
   assert(tts->size != 0);
 }
 
-void genarate_tts_url(char *url, const char *base, const TTSParams params) {
-  assert(base != NULL);
-  assert(params.client != NULL && params.ie != NULL && params.tl != NULL &&
-         params.q != NULL);
+void genarate_tts_url(char *url, const TTSParams params, Text text) {
+  const char base[] = "https://translate.googleapis.com/translate_tts";
 
-  sprintf(url, "%s?client=%s&ie=%s&tl=%s&q=%s", base, params.client, params.ie,
-          params.tl, params.q);
+  assert(base != NULL);
+  assert(params.client != NULL && params.ie != NULL && params.tl != NULL);
+
+  sprintf(url, "%s?client=%s&ie=%s&tl=%s&q=", base, params.client, params.ie,
+          params.tl);
+
+  int len = strlen(url);
+  url_encode(text, url + len);
 }
 
 ssize_t media_read_cb(void *opaque, unsigned char *buf, size_t len) {
@@ -293,12 +299,77 @@ void trans(char *translation, char text[]) {
   // printf("url: %s\n", url);
 
   char data[TRANS_BUFFER_SIZE];
-  Translate trans = {.data = data, .size = 0};
+  Text trans = {.data = data, .size = 0};
   request_trans(&trans, url);
   // printf("Output: %s, size: %ld\n", trans.data, trans.size);
   get_trans(translation, trans.data);
 }
 
+bool is_end_sentence(const char *text) {
+  if ((text[0] == '?' || text[0] == '.') && isspace(text[1])) {
+    return true;
+  }
+  return false;
+}
+
+bool is_interrupt_sentence(const char *text) {
+  if ((text[0] == ',' || text[0] == ';') && isspace(text[1])) {
+    return true;
+  }
+  return false;
+}
+Text tok(char *text, int len, int limit) {
+
+  int blank_pos = 0;
+  int end_sentence_pos = 0;
+  int interrupt_sentence_pos = 0;
+
+  int count = 0;
+  const int start = 0;
+  int end = 0;
+  int pos = 0;
+
+  // printf("Origin:\n");
+  // fwrite(text, 1, len, stdout);
+  // // printf("\nlen: %d\nEnd\n", len);
+  // printf("\n");
+
+  if (len <= limit) {
+    return (Text){.data = text, .size = len};
+  }
+
+  while (true) {
+
+    if (isspace(text[pos])) {
+      blank_pos = pos;
+    }
+
+    if (is_end_sentence(text + pos)) {
+      end_sentence_pos = pos;
+    }
+
+    if (is_interrupt_sentence(text + pos)) {
+      interrupt_sentence_pos = pos;
+    }
+
+    if (count == limit) {
+      // end = fmax(interrupt_sentence_pos, end_sentence_pos);
+      end = end_sentence_pos == 0 ? interrupt_sentence_pos : end_sentence_pos;
+      // printf("End: %d and %d\n", interrupt_sentence_pos,
+      // end_sentence_pos); end = interrupt_sentence_pos;
+      assert(start < end);
+      return (Text){.data = text, .size = end - start + 1};
+    }
+
+    if (pos == len - 1) {
+      end = pos;
+      return (Text){.data = text, .size = end - start + 1};
+    }
+
+    count++;
+    pos++;
+  }
+}
 void tts(char *translation) {
   const char tts_base[] = "https://translate.googleapis.com/translate_tts";
   // char translation[] =
@@ -308,26 +379,46 @@ void tts(char *translation) {
   // "?since your script is in the current directory, it comes first "
   // "in sys.path, and so that's the module that gets imported.";
 
-  assert(strlen(tts_base) < TTS_BUFFER_SIZE);
-  assert(strlen(translation) < TTS_BUFFER_SIZE);
+  int trans_len = strlen(translation);
+  assert(trans_len < TTS_BUFFER_SIZE);
+  assert(trans_len != 0);
 
   char url[TTS_BUFFER_SIZE];
-  char normalized_text[TTS_BUFFER_SIZE];
-  url_encode(translation, strlen(translation), normalized_text);
-  printf("%s\n", translation);
-  TTSParams tts_params = {
-      .client = "gtx", .ie = "UTF-8", .tl = "vi", .q = normalized_text};
-  genarate_tts_url(url, tts_base, tts_params);
-  printf("url: %s\n", url);
+  Text trans = {.data = translation, .size = trans_len};
+  TTSParams params = {.client = "gtx", .ie = "UTF-8", .tl = "vi"};
 
+  const int limit = 250;
+  char *pointer = trans.data + 0;
+  int size = trans.size - 0;
   char data[TTS_BUFFER_SIZE];
-  TTS tts = {.data = data, .size = 0};
-  request_tts(&tts, url);
-  // printf("TTS: %s, size: %ld\n", tts.data, tts.size);
+  Text audio = {.data = data, .size = 0};
 
-  // ---------------------------------------
-  MemAudioData mem = {.audio = tts.data, .bytes = tts.size, .pos = 0};
+  while (size > 0) {
 
+    Text slice = tok(pointer, size, limit);
+    // fwrite(slice.data, 1, slice.size, stdout);
+    // printf("\n");
+    // printf("\nlen: %d\n", slice.size);
+    genarate_tts_url(url, params, slice);
+    // printf("url: %s\n", url);
+    pointer = slice.data + slice.size + 1;
+    size -= slice.size + 1;
+    // printf("Remain: %d\n", size);
+
+    // put all audio chunk together
+    Text resp = {.data = data + audio.size,
+                 .size = 0}; // resp also a slice to audio
+    request_tts(&resp, url);
+    audio.size += resp.size;
+    // printf("TTS: %s, size: %d\n", all.data, all.size);
+
+    // ---------------------------------------
+    // MemAudioData mem = {.audio = resp.data, .bytes = resp.size, .pos = 0};
+
+    // play_audio(mem);
+  }
+
+  MemAudioData mem = {.audio = audio.data, .bytes = audio.size, .pos = 0};
   play_audio(mem);
 }
 
