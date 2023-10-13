@@ -131,40 +131,13 @@ int media_seek_cb(void *opaque, uint64_t offset) {
   return 0;
 }
 
-libvlc_instance_t *init_player() { return libvlc_new(0, NULL); }
-void close_player(libvlc_instance_t *vlc) { libvlc_release(vlc); }
-void play(libvlc_instance_t *vlc, MemAudioData mem) {
-
-  libvlc_media_t *media = libvlc_media_new_callbacks(
-      vlc, media_open_cb, media_read_cb, media_seek_cb, NULL, (void *)&mem);
-
-  // Create a media player playing environment
-  libvlc_media_player_t *mediaPlayer =
-      libvlc_media_player_new_from_media(media);
-
-  // Set the playback rate to 2x
-  libvlc_media_player_set_rate(mediaPlayer, 2.0);
-
-  // play the media_player
-  libvlc_media_player_play(mediaPlayer);
-
-  sleep(1);
-  // Main event loop
-  while (libvlc_media_player_is_playing(mediaPlayer)) {
-  }
-
-  libvlc_media_release(media);
-  libvlc_media_player_stop(mediaPlayer);
-  libvlc_media_player_release(mediaPlayer);
-}
-
 void play_audio(MemAudioData mem) {
 
   // add Verbose option to instance
   const char *options[] = {"--quiet"};
 
-  libvlc_instance_t *vlc = libvlc_new(1, options);
-  // vlc = libvlc_new(0, NULL);
+  // libvlc_instance_t *vlc = libvlc_new(1, options);
+  libvlc_instance_t *vlc = libvlc_new(0, NULL);
 
   libvlc_media_t *media = libvlc_media_new_callbacks(
       vlc, media_open_cb, media_read_cb, media_seek_cb, NULL, (void *)&mem);
@@ -259,21 +232,34 @@ Text tok(char *text, int len, int limit) {
 
 int main() {
   char text[] =
-      // "Bạn có khỏe không? Tên bạn là gì?";
-      "ASCII là viết tắt của Mã tiêu chuẩn Mỹ để trao đổi thông tin. Máy tính "
-      "chỉ có thể hiểu được các con số, vì vậy mã ASCII là sự biểu diễn bằng "
-      "số của một ký tự như 'a' hoặc '@' hoặc một hành động nào đó. ASCII đã "
-      "được phát triển từ lâu và hiện nay các ký tự không in được hiếm khi "
-      "được sử dụng cho mục đích ban đầu của chúng. Dưới đây là bảng ký tự "
-      "ASCII và bảng này bao gồm các mô tả về 32 ký tự không in được đầu tiên. "
-      "ASCII thực sự được thiết kế để sử dụng với teletypes và do đó các mô tả "
-      "có phần mơ hồ. Tuy nhiên, nếu ai đó nói rằng họ muốn CV của bạn ở định "
-      "dạng ASCII, tất cả điều này có nghĩa là họ muốn văn bản 'thuần túy' "
-      "không có định dạng như tab, in đậm hoặc gạch dưới - định dạng thô mà "
-      "bất kỳ máy tính nào cũng có thể hiểu được. Điều này thường là để họ có "
-      "thể dễ dàng nhập tệp vào ứng dụng của riêng mình mà không gặp vấn đề "
-      "gì. Notepad.exe tạo văn bản ASCII hoặc trong MS Word bạn có thể lưu tệp "
-      "dưới dạng 'chỉ văn bản'";
+      "Có rất nhiều khoảng cách xung quanh đường 45 độ trong scatter diagram "
+      "thực tế so với trong Hình 3. Sự chênh lệch này cho thấy điểm yếu của "
+      "mối quan hệ giữa chiều cao của cha và chiều cao của con trai. Ví dụ, "
+      "giả sử bạn phải đoán chiều cao của một đứa con trai. Chiều cao của bố "
+      "giúp ích cho bạn bao nhiêu? Trong Hình 1, các chấm trong ống khói đại "
+      "diện cho tất cả các cặp cha-con trong đó người cha cao từ 72 inch đến "
+      "inch gần nhất (chiều cao của người cha từ 71,5 inch đến 72,5 inch, "
+      "trong đó các đường thẳng đứng nét đứt cắt ngang trục x). Vẫn có rất "
+      "nhiều sự thay đổi về chiều cao của các con trai, được biểu thị bằng sự "
+      "phân tán theo chiều dọc trong ống khói. Ngay cả khi bạn biết chiều cao "
+      "của người cha, vẫn có rất nhiều sai sót khi cố gắng đoán chiều cao của "
+      "con trai mình.";
+
+  // "Bạn có khỏe không? Tên bạn là gì?";
+  // "ASCII là viết tắt của Mã tiêu chuẩn Mỹ để trao đổi thông tin. Máy tính "
+  // "chỉ có thể hiểu được các con số, vì vậy mã ASCII là sự biểu diễn bằng "
+  // "số của một ký tự như 'a' hoặc '@' hoặc một hành động nào đó. ASCII đã "
+  // "được phát triển từ lâu và hiện nay các ký tự không in được hiếm khi "
+  // "được sử dụng cho mục đích ban đầu của chúng. Dưới đây là bảng ký tự "
+  // "ASCII và bảng này bao gồm các mô tả về 32 ký tự không in được đầu tiên. "
+  // "ASCII thực sự được thiết kế để sử dụng với teletypes và do đó các mô tả "
+  // "có phần mơ hồ. Tuy nhiên, nếu ai đó nói rằng họ muốn CV của bạn ở định "
+  // "dạng ASCII, tất cả điều này có nghĩa là họ muốn văn bản 'thuần túy' "
+  // "không có định dạng như tab, in đậm hoặc gạch dưới - định dạng thô mà "
+  // "bất kỳ máy tính nào cũng có thể hiểu được. Điều này thường là để họ có "
+  // "thể dễ dàng nhập tệp vào ứng dụng của riêng mình mà không gặp vấn đề "
+  // "gì. Notepad.exe tạo văn bản ASCII hoặc trong MS Word bạn có thể lưu tệp "
+  // "dưới dạng 'chỉ văn bản'";
 
   // "how old are you?. What's your name?. Do you love me?. Let's go.";
   // "This line is a giveaway: you have named your script json. but "
@@ -321,7 +307,6 @@ int main() {
   }
 
   MemAudioData mem = {.audio = audio.data, .bytes = audio.size, .pos = 0};
-
   play_audio(mem);
 
   return 0;
