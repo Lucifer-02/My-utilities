@@ -7,6 +7,7 @@
 #include <unistd.h>
 
 #include <curl/curl.h>
+#include <vlc/libvlc.h>
 #include <vlc/vlc.h>
 
 #define BUFFER_SIZE 1048576 // 1Mb
@@ -89,6 +90,7 @@ void url_encode(const Text text, char *output) {
 
   output[pos++] = '\0'; // Null-terminate the encoded string
 }
+
 void genarate_url(char *url, const TTSParams params, Text text) {
   const char base[] = "https://translate.googleapis.com/translate_tts";
 
@@ -129,35 +131,12 @@ int media_seek_cb(void *opaque, uint64_t offset) {
   return 0;
 }
 
-void media_close_cb(void *opaque) {}
+libvlc_instance_t *init_player() { return libvlc_new(0, NULL); }
+void close_player(libvlc_instance_t *vlc) { libvlc_release(vlc); }
+void play(libvlc_instance_t *vlc, MemAudioData mem) {
 
-// Event handler function
-static void handleEvents(const libvlc_event_t *pEvent, void *pUserData) {
-  libvlc_media_player_t *mp = pUserData;
-  switch (pEvent->type) {
-  case libvlc_MediaPlayerEndReached:
-    printf("Player End Reached\n");
-    libvlc_media_player_stop(mp);
-    libvlc_media_player_release(mp);
-    break;
-  default:
-    break;
-  }
-}
-
-void play_audio(MemAudioData mem) {
-
-  libvlc_instance_t *vlc;
-
-  // add Verbose option to instance
-  const char *options[] = {"--quiet"};
-
-  vlc = libvlc_new(1, options);
-  // vlc = libvlc_new(0, NULL);
-
-  libvlc_media_t *media =
-      libvlc_media_new_callbacks(vlc, media_open_cb, media_read_cb,
-                                 media_seek_cb, media_close_cb, (void *)&mem);
+  libvlc_media_t *media = libvlc_media_new_callbacks(
+      vlc, media_open_cb, media_read_cb, media_seek_cb, NULL, (void *)&mem);
 
   // Create a media player playing environment
   libvlc_media_player_t *mediaPlayer =
@@ -169,17 +148,44 @@ void play_audio(MemAudioData mem) {
   // play the media_player
   libvlc_media_player_play(mediaPlayer);
 
-  // // Register event manager
-  libvlc_event_manager_t *eventManager =
-      libvlc_media_player_event_manager(mediaPlayer);
-  libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, handleEvents,
-                      mediaPlayer);
+  sleep(1);
+  // Main event loop
+  while (libvlc_media_player_is_playing(mediaPlayer)) {
+  }
+
+  libvlc_media_release(media);
+  libvlc_media_player_stop(mediaPlayer);
+  libvlc_media_player_release(mediaPlayer);
+}
+
+void play_audio(MemAudioData mem) {
+
+  // add Verbose option to instance
+  const char *options[] = {"--quiet"};
+
+  libvlc_instance_t *vlc = libvlc_new(1, options);
+  // vlc = libvlc_new(0, NULL);
+
+  libvlc_media_t *media = libvlc_media_new_callbacks(
+      vlc, media_open_cb, media_read_cb, media_seek_cb, NULL, (void *)&mem);
+
+  // Create a media player playing environment
+  libvlc_media_player_t *mediaPlayer =
+      libvlc_media_player_new_from_media(media);
+
+  // Set the playback rate to 2x
+  libvlc_media_player_set_rate(mediaPlayer, 2.0);
+
+  // play the media_player
+  libvlc_media_player_play(mediaPlayer);
 
   sleep(1);
   // Main event loop
   while (libvlc_media_player_is_playing(mediaPlayer)) {
   }
 
+  libvlc_media_player_stop(mediaPlayer);
+  libvlc_media_player_release(mediaPlayer);
   // Free vlc
   libvlc_release(vlc);
 }
@@ -191,10 +197,19 @@ bool is_end_sentence(const char *text) {
   return false;
 }
 
+bool is_interrupt_sentence(const char *text) {
+  if ((text[0] == ',' || text[0] == ';') && isspace(text[1])) {
+    return true;
+  }
+  return false;
+}
+
 Text tok(char *text, int len, int limit) {
 
   int blank_pos = 0;
   int end_sentence_pos = 0;
+  int interrupt_sentence_pos = 0;
+
   int count = 0;
   const int start = 0;
   int end = 0;
@@ -202,7 +217,8 @@ Text tok(char *text, int len, int limit) {
 
   // printf("Origin:\n");
   // fwrite(text, 1, len, stdout);
-  // printf("\nlen: %d\nEnd\n", len);
+  // // printf("\nlen: %d\nEnd\n", len);
+  // printf("\n");
 
   if (len <= limit) {
     return (Text){.data = text, .size = len};
@@ -215,13 +231,18 @@ Text tok(char *text, int len, int limit) {
     }
 
     if (is_end_sentence(text + pos)) {
-
       end_sentence_pos = pos;
     }
 
+    if (is_interrupt_sentence(text + pos)) {
+      interrupt_sentence_pos = pos;
+    }
+
     if (count == limit) {
-      end = fmax(blank_pos - 1, end_sentence_pos);
-      // end = end_sentence_pos;
+      // end = fmax(interrupt_sentence_pos, end_sentence_pos);
+      end = end_sentence_pos == 0 ? interrupt_sentence_pos : end_sentence_pos;
+      // printf("End: %d and %d\n", interrupt_sentence_pos,
+      // end_sentence_pos); end = interrupt_sentence_pos;
       assert(start < end);
       return (Text){.data = text, .size = end - start + 1};
     }
@@ -230,6 +251,7 @@ Text tok(char *text, int len, int limit) {
       end = pos;
       return (Text){.data = text, .size = end - start + 1};
     }
+
     count++;
     pos++;
   }
@@ -271,27 +293,36 @@ int main() {
   char *pointer = trans.data + 0;
   int size = trans.size - 0;
   char data[BUFFER_SIZE];
+  Text audio = {.data = data, .size = 0};
 
   while (size > 0) {
+
     Text slice = tok(pointer, size, limit);
-    fwrite(slice.data, 1, slice.size, stdout);
-    printf("\n");
+    // fwrite(slice.data, 1, slice.size, stdout);
+    // printf("\n");
     // printf("\nlen: %d\n", slice.size);
     genarate_url(url, params, slice);
     // printf("url: %s\n", url);
     pointer = slice.data + slice.size + 1;
     size -= slice.size + 1;
     // printf("Remain: %d\n", size);
-    //
-    Text resp = {.data = data, .size = 0};
+
+    // put all audio chunk together
+    Text resp = {.data = data + audio.size,
+                 .size = 0}; // resp also a slice to audio
     request_tts(&resp, url);
-    // printf("TTS: %s, size: %d\n", resp.data, resp.size);
+    audio.size += resp.size;
+    // printf("TTS: %s, size: %d\n", all.data, all.size);
 
     // ---------------------------------------
-    MemAudioData mem = {.audio = resp.data, .bytes = resp.size, .pos = 0};
+    // MemAudioData mem = {.audio = resp.data, .bytes = resp.size, .pos = 0};
 
-    play_audio(mem);
+    // play_audio(mem);
   }
+
+  MemAudioData mem = {.audio = audio.data, .bytes = audio.size, .pos = 0};
+
+  play_audio(mem);
 
   return 0;
 }

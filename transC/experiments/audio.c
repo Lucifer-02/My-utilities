@@ -93,37 +93,42 @@ void play_audio(MemVideoData mem) {
   const char *options[] = {"--quiet"};
 
   vlc = libvlc_new(1, options);
-  libvlc_media_t *media =
-      libvlc_media_new_callbacks(vlc, media_open_cb, media_read_cb,
-                                 media_seek_cb, media_close_cb, (void *)&mem);
 
-  // Create a media player playing environment
-  libvlc_media_player_t *mediaPlayer =
-      libvlc_media_player_new_from_media(media);
+  for (int i = 0; i < 2; i++) {
 
-  // Set the playback rate to 2x
-  libvlc_media_player_set_rate(mediaPlayer, 2.0);
+    mem.pos = 0;
 
-  // Register event manager
-  libvlc_event_manager_t *eventManager =
-      libvlc_media_player_event_manager(mediaPlayer);
-  libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached, handleEvents,
-                      mediaPlayer);
+    libvlc_media_t *media =
+        libvlc_media_new_callbacks(vlc, media_open_cb, media_read_cb,
+                                   media_seek_cb, media_close_cb, (void *)&mem);
 
-  // play the media_player
-  libvlc_media_player_play(mediaPlayer);
+    // Create a media player playing environment
+    libvlc_media_player_t *mediaPlayer =
+        libvlc_media_player_new_from_media(media);
 
-  sleep(1);
-  // Main event loop
-  while (libvlc_media_player_is_playing(mediaPlayer)) {
+    // Set the playback rate to 2x
+    libvlc_media_player_set_rate(mediaPlayer, 2.0);
+
+    // // Register event manager
+    // libvlc_event_manager_t *eventManager =
+    //     libvlc_media_player_event_manager(mediaPlayer);
+    // libvlc_event_attach(eventManager, libvlc_MediaPlayerEndReached,
+    //                     handleEvents, mediaPlayer);
+
+    // play the media_player
+    libvlc_media_player_play(mediaPlayer);
+
+    sleep(1);
+    // Main event loop
+    while (libvlc_media_player_is_playing(mediaPlayer)) {
+    }
+
+    // Stop playing
+    libvlc_media_player_stop(mediaPlayer);
+
+    // Free the media_player
+    libvlc_media_player_release(mediaPlayer);
   }
-
-  // Stop playing
-  // libvlc_media_player_stop(mediaPlayer);
-
-  // Free the media_player
-  // libvlc_media_player_release(mediaPlayer);
-
   // Free vlc
   libvlc_release(vlc);
 }
