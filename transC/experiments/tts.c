@@ -188,10 +188,10 @@ Text tok(char *text, int len, int limit) {
   int end = 0;
   int pos = 0;
 
-  // printf("Origin:\n");
-  // fwrite(text, 1, len, stdout);
+  printf("Origin:\n");
+  fwrite(text, 1, len, stdout);
   // // printf("\nlen: %d\nEnd\n", len);
-  // printf("\n");
+  printf("\n");
 
   if (len <= limit) {
     return (Text){.data = text, .size = len};
@@ -213,7 +213,10 @@ Text tok(char *text, int len, int limit) {
 
     if (count == limit) {
       // end = fmax(interrupt_sentence_pos, end_sentence_pos);
-      end = end_sentence_pos == 0 ? interrupt_sentence_pos : end_sentence_pos;
+      end =
+          end_sentence_pos == 0
+              ? interrupt_sentence_pos == 0 ? blank_pos : interrupt_sentence_pos
+              : end_sentence_pos;
       // printf("End: %d and %d\n", interrupt_sentence_pos,
       // end_sentence_pos); end = interrupt_sentence_pos;
       assert(start < end);
@@ -232,18 +235,31 @@ Text tok(char *text, int len, int limit) {
 
 int main() {
   char text[] =
-      "Có rất nhiều khoảng cách xung quanh đường 45 độ trong scatter diagram "
-      "thực tế so với trong Hình 3. Sự chênh lệch này cho thấy điểm yếu của "
-      "mối quan hệ giữa chiều cao của cha và chiều cao của con trai. Ví dụ, "
-      "giả sử bạn phải đoán chiều cao của một đứa con trai. Chiều cao của bố "
-      "giúp ích cho bạn bao nhiêu? Trong Hình 1, các chấm trong ống khói đại "
-      "diện cho tất cả các cặp cha-con trong đó người cha cao từ 72 inch đến "
-      "inch gần nhất (chiều cao của người cha từ 71,5 inch đến 72,5 inch, "
-      "trong đó các đường thẳng đứng nét đứt cắt ngang trục x). Vẫn có rất "
-      "nhiều sự thay đổi về chiều cao của các con trai, được biểu thị bằng sự "
-      "phân tán theo chiều dọc trong ống khói. Ngay cả khi bạn biết chiều cao "
-      "của người cha, vẫn có rất nhiều sai sót khi cố gắng đoán chiều cao của "
-      "con trai mình.";
+      // "Có rất nhiều khoảng cách xung quanh đường 45 độ trong scatter diagram
+      // " "thực tế so với trong Hình 3. Sự chênh lệch này cho thấy điểm yếu của
+      // " "mối quan hệ giữa chiều cao của cha và chiều cao của con trai. Ví dụ,
+      // " "giả sử bạn phải đoán chiều cao của một đứa con trai. Chiều cao của
+      // bố " "giúp ích cho bạn bao nhiêu? Trong Hình 1, các chấm trong ống khói
+      // đại " "diện cho tất cả các cặp cha-con trong đó người cha cao từ 72
+      // inch đến " "inch gần nhất (chiều cao của người cha từ 71,5 inch đến
+      // 72,5 inch, " "trong đó các đường thẳng đứng nét đứt cắt ngang trục x).
+      // Vẫn có rất " "nhiều sự thay đổi về chiều cao của các con trai, được
+      // biểu thị bằng sự " "phân tán theo chiều dọc trong ống khói. Ngay cả khi
+      // bạn biết chiều cao " "của người cha, vẫn có rất nhiều sai sót khi cố
+      // gắng đoán chiều cao của " "con trai mình.";
+      "Trong bài viết này, chúng tôi giới thiệu TimeGPT, mô hình nền tảng đầu "
+      "tiên cho chuỗi thời gian, có khả năng tạo ra dự đoán chính xác cho các "
+      "tập dữ liệu đa dạng không được nhìn thấy trong quá trình đào tạo. Chúng "
+      "tôi đánh giá mô hình được đào tạo trước của mình dựa trên các phương "
+      "pháp thống kê, học máy và học sâu đã được thiết lập, chứng minh rằng "
+      "suy luận không bắn TimeGPT vượt trội về hiệu suất, hiệu quả và tính đơn "
+      "giản. Nghiên cứu của chúng tôi cung cấp bằng chứng thuyết phục rằng "
+      "những hiểu biết sâu sắc từ các lĩnh vực khác của trí tuệ nhân tạo có "
+      "thể được áp dụng một cách hiệu quả để phân tích chuỗi thời gian. Chúng "
+      "tôi kết luận rằng các mô hình chuỗi thời gian quy mô lớn mang đến cơ "
+      "hội thú vị để dân chủ hóa khả năng tiếp cận các dự đoán chính xác và "
+      "giảm bớt sự không chắc chắn bằng cách tận dụng khả năng của những tiến "
+      "bộ hiện đại trong học sâu.";
 
   // "Bạn có khỏe không? Tên bạn là gì?";
   // "ASCII là viết tắt của Mã tiêu chuẩn Mỹ để trao đổi thông tin. Máy tính "
