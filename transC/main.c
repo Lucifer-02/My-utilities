@@ -13,23 +13,24 @@
 
 typedef struct {
   char *client;
-  char *ie;
-  char *tl;
+  char *ie; // input encode
+  char *tl; // output encode
 } TTSParams;
 
+// https://stackoverflow.com/questions/26714426/what-is-the-meaning-of-google-translate-query-params
 typedef struct {
   char *client;
-  char *ie;
-  char *oe;
-  char *dt;
-  char *sl;
-  char *tl;
+  char *ie; // input encode
+  char *oe; // output encode
+  char *dt; // translate mode
+  char *sl; // source language
+  char *tl; // target language
 } TransParams;
 
 typedef struct {
   char *audio; // pointer to audio in memory
-  size_t bytes;
-  size_t pos;
+  size_t size;
+  size_t pos; // for callback
 } MemAudioData;
 
 // Struct to hold translated data and its size
@@ -41,7 +42,6 @@ typedef struct {
 // Callback function to handle received data
 size_t write_data(const void *ptr, size_t size, size_t nmemb, Text *resp) {
   assert(resp->data != NULL);
-  // assert(size < TRANS_BUFFER_SIZE);
 
   size_t new_size = resp->size + size * nmemb;
   memcpy(resp->data + resp->size, ptr, size * nmemb);
@@ -52,6 +52,9 @@ size_t write_data(const void *ptr, size_t size, size_t nmemb, Text *resp) {
 
 // Function to perform translation request using Google Translate API
 void request_api(Text *output, const char *url) {
+  assert(url != NULL);
+  assert(output->data != NULL);
+
   CURL *curl = curl_easy_init();
   if (curl) {
     curl_easy_setopt(curl, CURLOPT_URL, url);
@@ -64,12 +67,13 @@ void request_api(Text *output, const char *url) {
     }
     curl_easy_cleanup(curl);
   }
+
   assert(output->data != NULL);
   assert(output->size != 0);
 }
 
+// Warning: May can't handle all cases. See https://www.url-encode-decode.com/
 void url_encode(const Text text, char *output) {
-
   assert(output != NULL);
   assert(text.size != 0);
   assert(text.data != NULL);
@@ -77,8 +81,8 @@ void url_encode(const Text text, char *output) {
   int pos = 0;
 
   for (int i = 0; i < text.size; i++) {
-    unsigned char ch = text.data[i];
 
+    unsigned char ch = text.data[i];
     // printf("char: %02x\n", ch);
 
     if (('A' <= ch && ch <= 'Z') || ('a' <= ch && ch <= 'z') ||
@@ -95,13 +99,13 @@ void url_encode(const Text text, char *output) {
     }
   }
 
-  output[pos++] = '\0'; // Null-terminate the encoded string
+  output[pos++] = '\0';
 }
 
 void genarate_trans_url(char *url, const TransParams params, Text text) {
-  const char base[] = "https://translate.googleapis.com/translate_a/single";
   assert(params.client != NULL && params.ie != NULL && params.oe != NULL &&
          params.dt != NULL && params.sl != NULL && params.tl != NULL);
+  const char base[] = "https://translate.googleapis.com/translate_a/single";
 
   sprintf(url, "%s?client=%s&ie=%s&oe=%s&dt=%s&sl=%s&tl=%s&q=", base,
           params.client, params.ie, params.oe, params.dt, params.sl, params.tl);
@@ -127,16 +131,15 @@ void parse_resp(char *parsed, const char *json_string) {
     memcpy(parsed + offset, paragaph, para_size);
     offset += para_size;
   }
-  parsed[offset] = '\0';
 
+  parsed[offset] = '\0';
   json_decref(root);
 }
 
 void genarate_tts_url(char *url, const TTSParams params, Text text) {
-  const char base[] = "https://translate.googleapis.com/translate_tts";
-
-  assert(base != NULL);
   assert(params.client != NULL && params.ie != NULL && params.tl != NULL);
+
+  const char base[] = "https://translate.googleapis.com/translate_tts";
 
   sprintf(url, "%s?client=%s&ie=%s&tl=%s&q=", base, params.client, params.ie,
           params.tl);
@@ -149,9 +152,9 @@ ssize_t media_read_cb(void *opaque, unsigned char *buf, size_t len) {
   MemAudioData *mVid = (MemAudioData *)opaque; // cast and give context
 
   size_t copyLen =
-      (mVid->bytes - mVid->pos < len) ? mVid->bytes - mVid->pos : len;
+      (mVid->size - mVid->pos < len) ? mVid->size - mVid->pos : len;
   char *start = mVid->audio + mVid->pos;
-  memcpy(buf, start, copyLen); // copy bytes requested to buffer.
+  memcpy(buf, start, copyLen); // copy size requested to buffer.
   mVid->pos += copyLen;
 
   return copyLen;
@@ -160,7 +163,7 @@ ssize_t media_read_cb(void *opaque, unsigned char *buf, size_t len) {
 int media_open_cb(void *opaque, void **datap, uint64_t *sizep) {
   // cast opaque to our audio state struct
   MemAudioData *mVid = (MemAudioData *)opaque;
-  *sizep = mVid->bytes; // set stream length
+  *sizep = mVid->size; // set stream length
   *datap = mVid;
 
   return 0;
@@ -334,7 +337,7 @@ void tts(char *text, float speed) {
     // printf("TTS: %s, size: %d\n", all.data, all.size);
   }
 
-  MemAudioData mem = {.audio = audio.data, .bytes = audio.size, .pos = 0};
+  MemAudioData mem = {.audio = audio.data, .size = audio.size, .pos = 0};
   play_audio(mem, speed);
 }
 
