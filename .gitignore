@@ -1,3 +1,4 @@
+# my ignores
 config.json
 .vscode/
 .gdb_history
