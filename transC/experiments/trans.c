@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 8194 
 
 // Struct to hold translated data and its size
 typedef struct {
@@ -134,16 +134,29 @@ void genarate_url(char *url, const TransParams params, Text text) {
 }
 
 int main() {
-  char text[] = "ai? tôi là ai?";
+  char text[] =
+      // "ai? tôi là ai?";
 
-  // "xin chào, tên tôi là Hoàng.. Bạn có khỏe không? Chiều nay ta "
-  // "có hẹn tại ";
-  // "This line is a giveaway: you have named your script json. but "
-  // "you are trying to import the builtin module called json, "
-  // "?since your script is in the current directory, it comes first "
-  // "in sys.path, and so that's the module that gets imported.";
-  // "how are your?. What's your name?. Do you love me?. Let's go.";
-  size_t source_len = strlen(text);
+      "In this paper, we introduce TimeGPT, the first foundation model for "
+      "time series, capable of generating accurate predictions for diverse "
+      "datasets not seen during training. We evaluate our pre-trained model "
+      "against established statistical, machine learning, and deep learning "
+      "methods, demonstrating that TimeGPT zero-shot inference excels in "
+      "performance, efficiency, and simplicity. Our study provides compelling "
+      "evidence that insights from other domains of artificial intelligence "
+      "can be effectively applied to time series analysis. We conclude that "
+      "large-scale time series models offer an exciting opportunity to "
+      "democratize access to precise predictions and reduce uncertainty by "
+      "leveraging the capabilities of contemporary advancements in deep "
+      "learning.";
+      // "xin chào, tên tôi là Hoàng.. Bạn có khỏe không? Chiều nay ta "
+      // "có hẹn tại ";
+      // "This line is a giveaway: you have named your script json. but "
+      // "you are trying to import the builtin module called json, "
+      // "?since your script is in the current directory, it comes first "
+      // "in sys.path, and so that's the module that gets imported.";
+      // "how are your?. What's your name?. Do you love me?. Let's go.";
+      size_t source_len = strlen(text);
   Text source = {.data = text, .size = source_len};
 
   assert(source_len < BUFFER_SIZE);
@@ -154,8 +167,8 @@ int main() {
                         .ie = "UTF-8",
                         .oe = "UTF-8",
                         .dt = "t",
-                        .sl = "vi",
-                        .tl = "en"};
+                        .sl = "auto",
+                        .tl = "vi"};
 
   genarate_url(url, params, source);
   // printf("url: %s\n", url);
