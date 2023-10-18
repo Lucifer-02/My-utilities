@@ -1,4 +1,6 @@
 config.json
+.vscode/
+.gdb_history
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -16,7 +18,6 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
 lib64/
 parts/
 sdist/
