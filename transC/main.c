@@ -1,8 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
-
-#include <jansson.h>
 
 #include "lib/common.h"
 #include "lib/trans.h"
@@ -19,6 +18,7 @@ void trans(char *translation, char text[]) {
                         .dt = "t",
                         .sl = "auto",
                         .tl = "vi"};
+
   genarate_trans_url(url, params, source);
   // printf("url: %s\n", url);
 
@@ -46,6 +46,7 @@ void tts(char *text, float speed) {
   char data[TTS_BUFFER_SIZE];
   Text audio = {.data = data, .size = 0};
 
+  // split text to chunk then handle one by one if reach limit length
   while (size > 0) {
 
     const Text slice = tok(pointer, size, limit);
