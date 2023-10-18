@@ -1,19 +1,14 @@
 #include <assert.h>
-#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 
-#include <curl/curl.h>
 #include <jansson.h>
-#include <vlc/vlc.h>
 
 #include "lib/common.h"
 #include "lib/trans.h"
 #include "lib/tts.h"
 
 void trans(char *translation, char text[]) {
-
   assert(strlen(text) < TRANS_BUFFER_SIZE);
 
   char url[TRANS_BUFFER_SIZE];
@@ -35,7 +30,6 @@ void trans(char *translation, char text[]) {
 }
 
 void tts(char *text, float speed) {
-
   assert(text != NULL);
 
   int text_len = strlen(text);
