@@ -14,7 +14,6 @@ def run(speed: float, player: str, tts_mode: str):
     # kill player if it is running
     if not killPIDByName(player):
         text = normalize_str(getText())
-        print(text)
         translated = trans(
             source_lang="auto",
             target_lang="vi",

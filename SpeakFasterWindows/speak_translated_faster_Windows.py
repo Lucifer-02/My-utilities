@@ -1,20 +1,31 @@
 from subprocess import Popen, PIPE
+import multiprocessing
+import os
+
 from gtts.tts import gTTS
 import pyautogui
 import pyperclip
 from keyboard import wait
 from translators import translate_text
-import multiprocessing
-import os
+
+from myLib.copy import getText
+from myLib.normalize_str import removeNewline, removeReturn
+from myLib.translate import trans
+from myLib.TTS import tts
+from myLib.pidHandle import killPIDByName
 
 
 # configs
 speed = 2.0
 shortkey = r"F9"
 
+
+def normalize_str(text: str) -> str:
+    text = removeReturn(removeNewline(text))
+    return text
+
+
 # kill prosses
-
-
 def kill(pid: int) -> bool:
     try:
         os.kill(pid, 9)
@@ -25,37 +36,62 @@ def kill(pid: int) -> bool:
 
 
 def get_text():
-    pyautogui.hotkey('ctrl', 'c')
+    pyautogui.hotkey("ctrl", "c")
     return pyperclip.paste()
 
+
 # translate selected text and read
+# def trans(text: str) -> str:
+#     result = translate_text(text, translator="google", to_language="vi")
+#     if isinstance(result, dict):
+#         return "None"
+#
+#     return result
 
 
-def trans(text):
-    return translate_text(text, translator='google', to_language='vi')
-
-
-def tts_mpv(text):
-    tts = gTTS(text=text, lang='vi')
-    p = Popen(['mpv', '--speed=' + str(speed), '--no-video', '-'], stdin=PIPE)
+def tts_mpv(text: str) -> None:
+    tts = gTTS(text=text, lang="vi")
+    p = Popen(["mpv", "--speed=" + str(speed), "--no-video", "-"], stdin=PIPE)
     tts.write_to_fp(p.stdin)
     p.wait()
 
 
-def tts_ffmpeg(text):
-    tts = gTTS(text=text, lang='vi')
-    p = Popen(['ffplay', '-af', 'atempo=' + str(speed),
-              '-nodisp', '-autoexit'], stdin=PIPE)
+def tts_ffmpeg(text: str) -> None:
+    tts = gTTS(text=text, lang="vi")
+    p = Popen(
+        [
+            "ffplay",
+            "-af",
+            "atempo=" + str(speed),
+            "-v",
+            "quiet",
+            "-nodisp",
+            "-autoexit",
+            "-",
+        ],
+        stdin=PIPE,
+    )
     tts.write_to_fp(p.stdin)
-    p.wait()
+    if p.stdin is not None:
+        p.stdin.close()
+        p.wait()
+    # p.wait()
 
 
 def run(prev_pid: int):
     if kill(prev_pid):
         print(f"killed {prev_pid}")
     else:
-        tts_mpv(trans(get_text()))
-        #  tts_ffmpeg(trans(get_text()))
+        text = normalize_str(getText())
+        # tts_mpv(trans(get_text()))
+        # tts_ffmpeg(trans(get_text()))
+        translated = trans(
+            source_lang="en",
+            target_lang="vi",
+            source_text=text,
+            translator="api",
+        )
+        tts_ffmpeg(translated)
 
 
 def main():
