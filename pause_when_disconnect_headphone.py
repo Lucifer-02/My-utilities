@@ -5,8 +5,8 @@ from subprocess import call
 
 
 def check_headphone_connect():
-    file = open('/proc/asound/card0/codec#0', 'r')
-    info = file.read().split('\n')
+    file = open("/proc/asound/card0/codec#0", "r")
+    info = file.read().split("\n")
     index = 0
     for line in info:
         if r"Node 0x03" in line:
@@ -23,4 +23,3 @@ while True:
         # resume audio
         call(["playerctl", "play"])
     sleep(0.1)
-
