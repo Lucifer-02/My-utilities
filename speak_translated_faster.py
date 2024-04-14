@@ -1,19 +1,14 @@
 from myLib.copy import getText
-from myLib.normalize_str import removeNewline, removeReturn
+from myLib.normalize_str import normalize_input
 from myLib.translate import trans
 from myLib.TTS import tts
 from myLib.pidHandle import killPIDByName
 
 
-def normalize_str(text: str) -> str:
-    text = removeReturn(removeNewline(text))
-    return text
-
-
 def run(speed: float, player: str, tts_mode: str):
     # kill player if it is running
     if not killPIDByName(player):
-        text = normalize_str(getText())
+        text = normalize_input(getText())
         translated = trans(
             source_lang="auto",
             target_lang="vi",
@@ -29,4 +24,4 @@ if __name__ == "__main__":
     #     config = json.load(file)["tts"]
     #     run(speed=config["speed"], player=config["player"], tts_mode=config["tts_mode"])
 
-    run(speed=2.0, player="ffplay", tts_mode="online")
+    run(speed=2.0, player="my_tts", tts_mode="online")

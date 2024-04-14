@@ -10,6 +10,9 @@ def removeReturn(text: str) -> str:
 def removeSpace(text) -> str:
     return text.strip()
 
+def normalize_input(text: str) -> str:
+    text = removeReturn(removeNewline(text))
+    return text
 
 def align(string: str, width: int) -> str:
     length = len(string)
