@@ -5,7 +5,7 @@ from myLib.TTS import tts
 from myLib.pidHandle import killPIDByName
 
 
-def run(speed: float, player: str, tts_mode: str):
+def run(speed: float, player: str, tts_mode: str, engine: str):
     # kill player if it is running
     if not killPIDByName(player):
         text = normalize_input(getText())
@@ -15,7 +15,7 @@ def run(speed: float, player: str, tts_mode: str):
             source_text=text,
             translator="crow",
         )
-        tts(text=translated, mode=tts_mode, player=player, speed=speed)
+        tts(text=translated, mode=tts_mode, player=player, speed=speed, engine=engine)
 
 
 if __name__ == "__main__":
@@ -24,4 +24,4 @@ if __name__ == "__main__":
     #     config = json.load(file)["tts"]
     #     run(speed=config["speed"], player=config["player"], tts_mode=config["tts_mode"])
 
-    run(speed=2.0, player="my_tts", tts_mode="online")
+    run(speed=2.0, player="mpv", tts_mode="online", engine="my_lang_tool")

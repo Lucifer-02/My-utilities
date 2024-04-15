@@ -1,52 +1,74 @@
-from subprocess import Popen, PIPE, call
+from subprocess import Popen, PIPE, call, check_output
 from multiprocessing import Process
 from pathlib import Path
 
 from gtts import gTTS
 
 
-def tts(text: str, mode: str, player: str, speed: float):
-    if mode == "offline":
-        call(["espeak-ng", "-vvi", text])
-    else:
-        tts = gTTS(text=text, lang="vi")
-        # uncomment this line to use mpv instead of ffplay below
-        match player:
-            case "mpv":
-                p = Popen(
-                    ["mpv", "--speed=" + str(speed), "--no-video", "-"], stdin=PIPE
-                )
-                tts.write_to_fp(p.stdin)
-                if p.stdin is not None:
-                    p.stdin.close()
-                    p.wait()
-            case "ffplay":
-                p = Popen(
-                    [
-                        "ffplay",
-                        "-af",
-                        "atempo=" + str(speed),
-                        "-v",
-                        "quiet",
-                        "-nodisp",
-                        "-autoexit",
-                        "-",
-                    ],
-                    stdin=PIPE,
-                )
-                tts.write_to_fp(p.stdin)
-                if p.stdin is not None:
-                    p.stdin.close()
-                    p.wait()
-            case "my_tts":
+class MyTTS:
+    def __init__(self, text: str, engine: str) -> None:
+        self.engine = engine
+        match engine:
+            case "crow":
+                self.audio = gTTS(text=text, lang="vi")
+            case "my_lang_tool":
                 # TODO: only using tts module
                 TTS_PATH = Path(
-                    f"/media/lucifer/STORAGE/IMPORTANT/My-utilities/myLib/{player}"
+                    f"/media/lucifer/STORAGE/IMPORTANT/My-utilities/myLib/{engine}"
                 )
                 assert TTS_PATH.is_file()
-                call([str(TTS_PATH), text if len(text) > 0 else "No text"])
-            case _:
-                raise ValueError(f"Not support {player} player")
+                self.audio = check_output(
+                    [
+                        str(TTS_PATH),
+                        str(0),
+                        "2",
+                        text if len(text) > 0 else "No text",
+                    ],
+                )
+
+    def write_to_stdin(self, p):
+        match self.engine:
+            case "crow":
+                assert isinstance(self.audio, gTTS)
+                self.audio.write_to_fp(p.stdin)
+            case "my_lang_tool":
+                assert isinstance(self.audio, bytes)
+                p.stdin.write(self.audio)
+
+
+def tts(text: str, mode: str, player: str, speed: float, engine: str):
+    if mode == "offline":
+        call(["espeak-ng", "-vvi", text])
+        exit()
+
+    tts = MyTTS(text, engine=engine)
+
+    # uncomment this line to use mpv instead of ffplay below
+    match player:
+        case "mpv":
+            p = Popen(["mpv", "--speed=" + str(speed), "--no-video", "-"], stdin=PIPE)
+            tts.write_to_stdin(p)
+            if p.stdin is not None:
+                p.stdin.close()
+                p.wait()
+        case "ffplay":
+            p = Popen(
+                [
+                    "ffplay",
+                    "-af",
+                    "atempo=" + str(speed),
+                    "-v",
+                    "quiet",
+                    "-nodisp",
+                    "-autoexit",
+                    "-",
+                ],
+                stdin=PIPE,
+            )
+            tts.write_to_stdin(p)
+            if p.stdin is not None:
+                p.stdin.close()
+                p.wait()
 
 
 # create new process to run tts independently from the main process and get return value frome tts function
