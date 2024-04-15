@@ -46,7 +46,16 @@ def tts(text: str, mode: str, player: str, speed: float, engine: str):
     # uncomment this line to use mpv instead of ffplay below
     match player:
         case "mpv":
-            p = Popen(["mpv", "--speed=" + str(speed), "--no-video", "-"], stdin=PIPE)
+            p = Popen(
+                [
+                    "mpv",
+                    "--speed=" + str(speed),
+                    "--no-video",
+                    "--really-quiet",
+                    "-",
+                ],
+                stdin=PIPE,
+            )
             tts.write_to_stdin(p)
             if p.stdin is not None:
                 p.stdin.close()
