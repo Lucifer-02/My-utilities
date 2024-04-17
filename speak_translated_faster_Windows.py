@@ -1,8 +1,6 @@
-from subprocess import Popen, PIPE
 import multiprocessing
 import os
 
-from gtts.tts import gTTS
 import pyautogui
 import pyperclip
 from keyboard import wait
@@ -43,12 +41,7 @@ def run(prev_pid: int):
             source_text=text,
             translator="api",
         )
-        tts(
-            text=translated,
-            mode="online",
-            player="ffmpeg",
-            speed=2.0,
-        )
+        tts(text=translated, mode="online", player="mpv", speed=2.0, engine="main.exe")
 
 
 def main():
