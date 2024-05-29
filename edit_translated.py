@@ -2,6 +2,7 @@
 # using PySide6 and can auto adapt to the size of the text
 import sys
 import json
+import logging
 
 from PySide6.QtWidgets import (
     QApplication,
@@ -17,6 +18,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QFont
 from PySide6.QtCore import QSize, Qt, Slot
+
 from myLib.copy import getText
 from myLib.normalize_str import removeNewline, removeReturn, removeSpace
 from myLib.translate import trans
@@ -43,13 +45,13 @@ class Window(QDialog):
         super().__init__()
 
         # config_path = os.environ["DATA_PATH"] + "/My-utilities/config.json"
-        # config_path = "/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json"
-        config_path = "/media/lucifer/DATA/My-utilities/config.json"
+        config_path = "/media/lucifer/STORAGE/IMPORTANT/My-utilities/config.json"
+        # config_path = "/media/lucifer/DATA/My-utilities/config.json"
         with open(config_path, "r", encoding="utf-8") as file:
             config = json.load(file)["edit"]
 
         if config["editor_window_id"] == 0:
-            print("Config editor PID first")
+            logging.debug("Config editor PID first")
             sys.exit()
 
         self.speed = config["speed"]
@@ -61,16 +63,15 @@ class Window(QDialog):
         self.init_ui()
 
     def init_ui(self):
-        # set the window size and title
-        self.setGeometry(900, 300, 750, round(750 / 1.618))
-        self.setWindowTitle("Edit translation")
-
         self.text = normalize(getText())
         self.trans = trans(
             source_lang="en",
             target_lang="vi",
             source_text=self.text,
         )
+        # set the window size and title
+        self.setGeometry(900, 300, 750, round(750 / 1.618))
+        self.setWindowTitle("Edit translation")
 
         # create textbox to edit text with default text
         self.text_edit = QTextEdit(self)
@@ -167,7 +168,6 @@ class Window(QDialog):
     def update_font_size(self):
         size = self.font_size_box.value()
         is_on = self.font_size_checkbox.isChecked()
-        print(is_on)
         if size > 0 and is_on:
             self.text_edit.setFont(QFont("Ubuntu", size))
 
@@ -178,7 +178,7 @@ class Window(QDialog):
 
     @Slot()
     def copy_content(self):
-        print("copy")
+        logging.info("Copied")
         # copy the text in textbox to clipboard
         self.clipboard = QApplication.clipboard()
         self.clipboard.setText(self.text_edit.toPlainText())
@@ -207,7 +207,7 @@ class Window(QDialog):
 
     @Slot()
     def _speak(self):
-        print("speak")
+        logging.info("Speaking")
 
         self.tts_pid[0] = getPID(self.player)
 
@@ -228,7 +228,6 @@ class Window(QDialog):
 
 
 if __name__ == "__main__":
-    # config_path = os.environ["DATA_PATH"] + "/My-utilities/config.json"
     app = QApplication(sys.argv)
     window = Window()
     window.show()

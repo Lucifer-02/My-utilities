@@ -1,0 +1,632 @@
+toc:
+  title: Table Of Contents
+  page: 8
+
+parts:
+  - title: "PART I: Exploring and Understanding Data"
+    page: 24
+    chapters:
+      - title: "1 Stats Starts Here"
+        page: 25
+        sections:
+          - title: "So, What Is (Are?) Statistics?"
+            page: 24
+          - title: "Statistics in a Word"
+            page: 25
+          - title: "But What Are Data?"
+            page: 26
+          - title: "Who and What"
+            page: 27
+          - title: "How the Data Are Collected"
+            page: 27
+          - title: "More About Variables (What ?)"
+            page: 28
+      - title: "2 Displaying and Describing Categorical Data"
+        page: 37
+        sections:
+          - title: "The Three Rules of Data Analysis"
+            page: 38
+          - title: "The Area Principle"
+            page: 39
+          - title: "Frequency Tables: Making Piles"
+            page: 39
+          - title: "Bar Charts"
+            page: 40
+          - title: "Pie Charts"
+            page: 42
+          - title: "Contingency Tables: Children and First-Class Ticket Holders First?"
+            page: 42
+          - title: "Conditional Distributions"
+            page: 42
+          - title: "Other Types of Graphs"
+            page: 51
+          - title: "Is the Difference Meaningful?"
+            page: 52
+      - title: "3 Displaying and Summarizing Quantitative Data"
+        page: 67
+        sections:
+          - title: "Histograms"
+            page: 67
+          - title: "Stem-and-Leaf Displays (aka Stemplots)"
+            page: 70
+          - title: "Dotplots"
+            page: 72
+          - title: "Cumulative Distribution Graphs"
+            page: 72
+          - title: "Think Before You Draw, Again"
+            page: 74
+          - title: "The Shape of a Distribution"
+            page: 75
+          - title: "A Measure of Center: The Median"
+            page: 78
+          - title: "Spread: Home on the Range"
+            page: 79
+          - title: "Spread: The Interquartile Range"
+            page: 79
+          - title: "5-Number Summary"
+            page: 81
+          - title: "Boxplots"
+            page: 82
+          - title: "Summarizing Symmetric Distributions: The Mean"
+            page: 85
+          - title: "Mean or Median?"
+            page: 86
+          - title: "What About Spread? The Standard Deviation"
+            page: 88
+          - title: "What to Tell About a Quantitative Variable"
+            page: 90
+      - title: "4 Understanding and Comparing Distributions"
+        page: 109
+        sections:
+          - title: "The Big Picture"
+            page: 110
+          - title: "Comparing Groups with Histograms"
+            page: 110
+          - title: "Comparing Groups with Boxplots"
+            page: 111
+          - title: "Outliers"
+            page: 115
+          - title: "Timeplots: Order, Please!"
+            page: 116
+          - title: "Looking into the Future"
+            page: 117
+          - title: "*Re-expressing Data: A First Look"
+            page: 117
+      - title: "5 The Standard Deviation as a Ruler and the Normal Model"
+        page: 133
+        sections:
+          - title: "The Standard Deviation as a Ruler"
+            page: 133
+          - title: "Standardizing with z-Scores"
+            page: 134
+          - title: "Shifting Data: Move the Center"
+            page: 136
+          - title: "Rescaling Data: Adjust the Scale"
+            page: 137
+          - title: "Back to z-Scores"
+            page: 139
+          - title: "When Is a z-Score BIG?"
+            page: 140
+          - title: "The 68–95–99.7 Rule"
+            page: 141
+          - title: "The First Three Rules for Working with Normal Models"
+            page: 143
+          - title: "Determining Normal Percentiles"
+            page: 145
+          - title: "From Percentiles to Scores: z in Reverse"
+            page: 147
+          - title: "*Are You Normal? Find Out with a Normal Probability Plot "
+            page: 152
+          - title: "The Truth About Assessing Normality "
+            page: 153
+      - title: "Review of Part I"
+        page: 166
+
+  - title: "PART II Exploring Relationships Between Variables"
+    page: 178
+    chapters:
+      - title: "6 Scatterplots, Association, and Correlation"
+        page: 178
+        sections:
+          - title: "Looking at Scatterplots; Describing Associations"
+            page: 179
+          - title: "Roles for Variables"
+            page: 181
+          - title: "Correlation"
+            page: 183
+          - title: "Correlation Conditions"
+            page: 184
+          - title: "Correlation Properties"
+            page: 188
+          - title: "Accidental Correlation"
+            page: 188
+          - title: "Warning: Correlation ≠ Causation"
+            page: 190
+      - title: "7 Linear Regression"
+        page: 202
+        sections:
+          - title: "Residuals"
+            page: 203
+          - title: "Squared Residuals as a Measure of Fit"
+            page: 204
+          - title: "Correlation and the Line"
+            page: 204
+          - title: "How Big Can Predicted Values Get?"
+            page: 206
+          - title: "The Regression Line in Real Units"
+            page: 207
+          - title: "Residuals Revisited"
+            page: 212
+          - title: "The Typical Residual Size (aka Standard Error)"
+            page: 213
+          - title: "Different Samples, Different Regression Lines"
+            page: 214
+          - title: "R^2—The Variation Accounted For"
+            page: 216
+          - title: "How Big Should R^2 Be?"
+            page: 218
+          - title: "More About Regression Assumptions and Conditions"
+            page: 218
+          - title: "A Tale of Two Regressions"
+            page: 219
+          - title: "Reality Check: Is the Regression Reasonable?"
+            page: 223
+      - title: "8 Regression Wisdom"
+        page: 238
+        sections:
+          - title: 'Getting the "Bends": When the Residuals Aren t Straight'
+            page: 238
+          - title: "Extrapolation: Reaching Beyond the Data"
+            page: 240
+          - title: "Outliers, Leverage, and Influence"
+            page: 243
+          - title: "Lurking Variables and Causation"
+            page: 246
+          - title: "Working with Summary Values"
+            page: 248
+      - title: "9 Re-expressing Data: Get It Straight!"
+        page: 262
+        sections:
+          - title: "Straight to the Point"
+            page: 263
+          - title: "Goals of Re-expression"
+            page: 264
+          - title: "The Ladder of Powers"
+            page: 268
+          - title: "Plan B: Attack of the Logarithms"
+            page: 273
+          - title: "Why Not Just Use a Curve?"
+            page: 275
+      - title: "Review of Part II"
+        page: 287
+
+  - title: "PART III: Gathering Data"
+    page: 299
+    chapters:
+      - title: "10 Understanding Randomness"
+        page: 299
+        sections:
+          - title: "It's Not Easy Being Random"
+            page: 300
+          - title: "Let's Simulate!"
+            page: 301
+      - title: "11 Sample Surveys"
+        page: 313
+        sections:
+          - title: "Idea 1: Examine a Part of the Whole"
+            page: 314
+          - title: "Bias"
+            page: 314
+          - title: "Idea 2: Randomize"
+            page: 315
+          - title: "Idea 3: It's the Sample Size"
+            page: 316
+          - title: "Does a Census Make Sense?"
+            page: 316
+          - title: "Populations and Parameters"
+            page: 317
+          - title: "Simple Random Samples"
+            page: 318
+          - title: "Stratified Sampling"
+            page: 319
+          - title: "Stratified Sampling: A Simulation"
+            page: 320
+          - title: "Cluster and Multistage Sampling"
+            page: 322
+          - title: "Systematic Samples"
+            page: 323
+          - title: "The Valid Survey"
+            page: 325
+          - title: "Lots Can Go Wrong: How to Sample Badly"
+            page: 327
+      - title: "12 Experiments and Observational Studies"
+        page: 338
+        sections:
+          - title: "Observational Studies"
+            page: 338
+          - title: "Randomized, Comparative Experiments"
+            page: 339
+          - title: "The Four Principles of Experimental Design"
+            page: 341
+          - title: "Diagrams"
+            page: 343
+          - title: "Does the Difference Make a Difference?"
+            page: 345
+          - title: "Experiments and Samples"
+            page: 347
+          - title: "Control Treatments"
+            page: 347
+          - title: "Blinding"
+            page: 348
+          - title: "Placebos"
+            page: 349
+          - title: "Blocking"
+            page: 350
+          - title: "Adding More Factors"
+            page: 352
+          - title: "Confounding"
+            page: 353
+          - title: "Lurking or Confounding?"
+            page: 354
+          - title: "Statistical Significance, Revisited"
+            page: 355
+      - title: "Review of Part III"
+        page: 366
+
+  - title: "PART IV: Randomness and Probability"
+    page: 377
+    chapters:
+      - title: "13 From Randomness to Probability"
+        page: 377
+        sections:
+          - title: "Random Phenomena"
+            page: 377
+          - title: "The Law of Large Numbers"
+            page: 379
+          - title: 'The Nonexistent "Law of Averages"'
+            page: 379
+          - title: "Modeling Probability"
+            page: 381
+          - title: "Subjective Probability"
+            page: 382
+          - title: "The First Three Rules for Working with Probability"
+            page: 382
+          - title: "Formal Probability"
+            page: 383
+          - title: "Checking for Independence"
+            page: 385
+      - title: "14 Probability Rules!"
+        page: 397
+        sections:
+          - title: "The General Addition Rule"
+            page: 397
+          - title: "It Depends..."
+            page: 401
+          - title: "Independence"
+            page: 404
+          - title: "Independent ≠ Disjoint"
+            page: 405
+          - title: "Tables, Venn Diagrams, and Probability"
+            page: 406
+          - title: "The General Multiplication Rule"
+            page: 409
+          - title: "Drawing Without Replacement"
+            page: 409
+          - title: "Tree Diagrams"
+            page: 411
+          - title: "Reversing the Conditioning"
+            page: 413
+      - title: "15 Random Variables"
+        page: 425
+        sections:
+          - title: "Expected Value: Center"
+            page: 426
+          - title: "First Center, Now Spread ..."
+            page: 428
+          - title: "Representations of Random Variables"
+            page: 431
+          - title: "More About Means and Variances"
+            page: 434
+          - title: "Continuous Random Variables"
+            page: 440
+      - title: "16 Random Variables"
+        page: 452
+        sections:
+          - title: "Searching for Simone: Bernoulli Trials"
+            page: 452
+          - title: "The Geometric Model: Waiting for Success"
+            page: 454
+          - title: "The Binomial Model: Counting Successes"
+            page: 457
+          - title: "The Normal Model to the Rescue!"
+            page: 461
+          - title: "Should I Be Surprised? A First Look at Statistical Significance"
+            page: 465
+      - title: "Review of Part IV"
+        page: 473
+
+  - title: "PART V: From the Data at Hand to the World at Large"
+    page: 483
+    chapters:
+      - title: "17 Sampling Distribution Models"
+        page: 483
+        sections:
+          - title: "The Sampling Distribution of a Proportion"
+            page: 483
+
+          - title: "Can We Always Use a Normal Model?"
+            page: 486
+
+          - title: "A Sampling Distribution Model for a Proportion"
+            page: 487
+
+          - title: "The Sampling Distributions of Other Statistics"
+            page: 490
+
+          - title: "Simulating the Sampling Distribution of a Mean"
+            page: 490
+
+          - title: "The Fundamental Theorem of Statistics"
+            page: 491
+
+          - title: "Assumptions and Conditions"
+            page: 492
+
+          - title: "But Which Normal?"
+            page: 493
+
+          - title: "The CLT when the Population Is Very Skewed"
+            page: 496
+
+          - title: "About Variation"
+            page: 498
+
+          - title: "The Real World vs. the Model World"
+            page: 499
+
+          - title: "Sampling Distribution Models"
+            page: 500
+
+      - title: "18 Conﬁdence Intervals for Proportions"
+        page: 511
+        sections:
+          - title: "A Confidence Interval"
+            page: 512
+
+          - title: "What Does “95% Confidence” Really Mean?"
+            page: 514
+
+          - title: "Margin of Error: Degree of Certainty vs. Precision"
+            page: 516
+
+          - title: "Critical Values"
+            page: 517
+
+          - title: "Assumptions and Conditions"
+            page: 518
+
+          - title: "Choosing Your Sample Size"
+            page: 521
+
+          - title: "The Proof Is in the Pudding"
+            page: 523
+
+      - title: "19 Testing Hypotheses About Proportions"
+        page: 534
+        sections:
+          - title: "Hypotheses"
+            page: 535
+
+          - title: "A Jury Trial as a Hypothesis Test?"
+            page: 536
+
+          - title: "P-Values: Are We Surprised?"
+            page: 537
+
+          - title: "Alternative Alternatives?"
+            page: 538
+
+          - title: "The Reasoning of Hypothesis Testing"
+            page: 539
+
+          - title: "P-Values and Decisions: What to Tell About a Hypothesis Test?"
+            page: 545
+
+          - title: "Hypothesis Testing by Simulation?"
+            page: 549
+
+      - title: "20 More About Tests and Intervals"
+        page: 558
+        sections:
+          - title: "Zero In on the Null"
+            page: 558
+
+          - title: "How to Think About P-Values"
+            page: 560
+
+          - title: "Alpha Levels"
+            page: 564
+
+          - title: "Practical vs. Statistical Significance"
+            page: 565
+
+          - title: "Confidence Intervals and Hypothesis Tests"
+            page: 566
+
+          - title: "*A 95% Confidence Interval for Small Samples"
+            page: 567
+
+          - title: "Making Errors"
+            page: 568
+
+          - title: "Power"
+            page: 571
+
+      - title: "21 Comparing Two Proportions"
+        page: 585
+        sections:
+          - title: "Another Ruler"
+            page: 585
+
+          - title: "The Standard Deviation of the Difference Between Two Proportions"
+            page: 586
+
+          - title: "Assumptions and Conditions"
+            page: 587
+
+          - title: "A Confidence Interval"
+            page: 588
+
+          - title: "Screen Time Before Bed: A Cultural Difference?"
+            page: 592
+
+          - title: "Everyone into the Pool"
+            page: 593
+
+          - title: "The Two-Proportion z-Test"
+            page: 594
+
+          - title: "*A Permutation Test for Two Proportions"
+            page: 597
+
+      - title: "Review of Part V"
+        page: 606
+
+  - title: "PART VI: Learning About The World"
+    page: 616
+    chapters:
+      - title: "22 Inferences About Means"
+        page: 616
+        sections:
+          - title: "Getting Started: The Central Limit Theorem (Again)"
+            page: 617
+
+          - title: "The Story of Gosset’s t"
+            page: 618
+
+          - title: "A Confidence Interval for Means"
+            page: 621
+
+          - title: "Assumptions and Conditions"
+            page: 624
+
+          - title: "Using Table T to Find t-Values"
+            page: 627
+
+          - title: "Be Careful when Interpreting Confidence Intervals"
+            page: 629
+
+          - title: "A Hypothesis Test for the Mean"
+            page: 629
+
+          - title: "Intervals and Tests"
+            page: 633
+
+          - title: "Choosing the Sample Size"
+            page: 634
+
+      - title: "23 Comparing Means"
+        page: 647
+        sections:
+          - title: "Plot the Data"
+            page: 648
+
+          - title: "Comparing Two Means"
+            page: 648
+
+          - title: "Assumptions and Conditions"
+            page: 650
+
+          - title: "Another One Just Like the Other Ones?"
+            page: 654
+
+          - title: "A Test for the Difference Between Two Means"
+            page: 655
+
+          - title: "Back into the Pool?"
+            page: 660
+
+          - title: "The Pooled t-Test (In Case You’re Curious)"
+            page: 660
+
+          - title: "Is the Pool All Wet?"
+            page: 662
+
+          - title: "*A Permutation Test for Two Means"
+            page: 662
+
+      - title: "24 Paired Samples and Blocks"
+        page: 675
+        sections:
+          - title: "Paired Data"
+            page: 676
+
+          - title: "Assumptions and Conditions"
+            page: 677
+
+          - title: "Confidence Intervals for Matched Pairs"
+            page: 683
+
+          - title: "Effect Size"
+            page: 685
+
+          - title: "Blocking"
+            page: 686
+
+      - title: "Review of Part VI"
+        page: 698
+
+  - title: "PART VII: Inference When Variables Are Related"
+    page: 712
+    chapters:
+      - title: "25 Comparing Counts"
+        page: 712
+        sections:
+          - title: "Goodness-of-Fit Tests"
+            page: 712
+
+          - title: "Homogeneity: Comparing Observed Distributions"
+            page: 721
+
+          - title: "Chi-Square Test of Independence"
+            page: 725
+
+          - title: "Chi-Square and Causation"
+            page: 730
+
+      - title: "26 Inferences for Regression"
+        page: 743
+        sections:
+          - title: "The Model and the Data"
+            page: 744
+
+          - title: "Assumptions and Conditions"
+            page: 745
+
+          - title: "Intuition About Regression Inference"
+            page: 750
+
+          - title: "Standard Error for the Slope"
+            page: 752
+
+          - title: "Regression Inference"
+            page: 753
+
+          - title: "Another Example: Breaking Up Is Hard to Predict"
+            page: 755
+
+          - title: "Different Samples, Different Slopes"
+            page: 759
+
+      - title: Review of Part VII
+        page: 776
+
+appendix:
+  - title: "APPENDIX A: Selected Formulas"
+    page: 792
+
+  - title: "APPENDIX B: Guide to Statistical Software"
+    page: 794
+
+  - title: "APPENDIX C: Answers"
+    page: 820

@@ -7,7 +7,7 @@ from gtts import gTTS
 
 
 class MyTTS:
-    def __init__(self, text: str, engine: str) -> None:
+    def __init__(self, text: str, engine: str = "my_lang_tool") -> None:
         self.engine = engine
         match engine:
             case "crow":
@@ -44,7 +44,7 @@ class MyTTS:
                 raise ValueError(f"Not support {self.engine} engine!")
 
 
-def tts(text: str, mode: str, player: str, speed: float, engine: str):
+def tts(text: str, mode: str, player: str, speed: float, engine: str = "my_lang_tool"):
     if mode == "offline":
         call(["espeak-ng", "-vvi", text])
         exit()
