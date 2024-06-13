@@ -37,7 +37,7 @@ parts:
           - title: "Contingency Tables: Children and First-Class Ticket Holders First?"
             page: 42
           - title: "Conditional Distributions"
-            page: 42
+            page: 44
           - title: "Other Types of Graphs"
             page: 51
           - title: "Is the Difference Meaningful?"
@@ -621,7 +621,7 @@ parts:
       - title: Review of Part VII
         page: 776
 
-appendix:
+appendixes:
   - title: "APPENDIX A: Selected Formulas"
     page: 792
 
