@@ -2,6 +2,10 @@ toc:
   title: Table Of Contents
   page: 8
 
+preface:
+  title: Preface
+  page: 12
+
 parts:
   - title: "PART I: Exploring and Understanding Data"
     page: 24

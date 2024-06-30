@@ -12,6 +12,10 @@ def create_toc(toc: dict) -> OutlineItem:
     return create_item(toc)
 
 
+def create_preface(preface: dict) -> OutlineItem:
+    return create_item(preface)
+
+
 def create_part(part: dict) -> OutlineItem:
     part_item = create_item(part)
     for chapter in part["chapters"]:
@@ -47,13 +51,14 @@ if __name__ == "__main__":
 
     with pdf.open_outline() as outline:
         toc = create_toc(outline_input["toc"])
+        preface = create_preface(outline_input["preface"])
         outline_parts: list[OutlineItem] = [
             create_part(part) for part in outline_input["parts"]
         ]
         appendixies = create_appendix(outline_input["appendixes"])
 
         # set the outline
-        for item in [toc] + outline_parts + appendixies:
+        for item in [toc] + [preface] + outline_parts + appendixies:
             outline.root.append(item)
 
     pdf.save("output.pdf")
