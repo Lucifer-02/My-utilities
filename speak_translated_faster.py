@@ -24,4 +24,4 @@ if __name__ == "__main__":
     #     config = json.load(file)["tts"]
     #     run(speed=config["speed"], player=config["player"], tts_mode=config["tts_mode"])
 
-    run(speed=2.0, player="mpv", tts_mode="online", engine="my_lang_tool")
+    run(speed=2.0, player="mpv", tts_mode="online", engine="new_lang_tool")

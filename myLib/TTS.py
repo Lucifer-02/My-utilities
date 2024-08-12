@@ -31,13 +31,20 @@ class MyTTS:
                         text if len(text) > 0 else "No text",
                     ],
                 )
+            case "new_lang_tool":
+                MODE = "tts"
+                TTS_PATH = Path(
+                    f"/media/lucifer/STORAGE/IMPORTANT/My-utilities/myLib/{engine}"
+                )
+                assert TTS_PATH.is_file()
+                self.audio = check_output([TTS_PATH, MODE, "en", "vi", text])
 
     def write_to_stdin(self, p):
         match self.engine:
             case "crow":
                 assert isinstance(self.audio, gTTS)
                 self.audio.write_to_fp(p.stdin)
-            case "my_lang_tool" | "main.exe":
+            case "my_lang_tool" | "main.exe" | "new_lang_tool":
                 assert isinstance(self.audio, bytes)
                 p.stdin.write(self.audio)
             case _:
