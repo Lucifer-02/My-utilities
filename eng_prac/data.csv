@@ -1,4 +1,4 @@
-timestamp; content; count object; gess; answer
+timestamp; content; char; guess; answer
 2021-12-07 21:01:28.301856;;a;1;0
 2021-12-07 21:01:50.789860;The Tesla and SpaceX CEO said during the interview that he’s concerned about the federal deficit;a;1;7
 2021-12-07 21:06:27.651882;He also said the Biden infrastructure plan should get canned;a;4;5
@@ -76,3 +76,4 @@ timestamp; content; count object; gess; answer
 2023-08-03 17:08:34.643111;linux mint sticks to ubuntu long-term support ;t;6;6
 2023-08-21 14:19:12.410499;automates anything you see on the screen of your desktop computer running windows;a;4;3
 2023-09-21 10:08:55.129874;this application failed to start because no;c;5;2
+2024-10-01 10:23:54.783336;boris vallejo and the pixel art of the demoscene;r;2;2
