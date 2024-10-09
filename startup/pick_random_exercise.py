@@ -24,8 +24,8 @@ def main():
     exercise = np.random.choice(range(1, row["numExercises"][0] + 1))
 
     # # send notification
-    title = "Do it or your life!"
-    msg = f"Exercise: {exercise}"
+    title = "🖕🏾"
+    msg = f"Exercise: {exercise}, page: {page}"
     send_notify(title, msg)
 
     open_pdf_with_chrome(BOOK_PATH, page_number=page)
