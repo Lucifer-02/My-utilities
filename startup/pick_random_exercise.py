@@ -4,7 +4,7 @@ from subprocess import run
 import polars as pl
 import numpy as np
 
-from open_doc import open_pdf_with_chrome
+from open_doc import open_pdf_with_edge
 
 
 def send_notify(title: str, message: str):
@@ -28,7 +28,7 @@ def main():
     msg = f"Exercise: {exercise}, page: {page}"
     send_notify(title, msg)
 
-    open_pdf_with_chrome(BOOK_PATH, page_number=page)
+    open_pdf_with_edge(BOOK_PATH, page_number=page)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import numpy as np
 
-from open_doc import open_pdf_with_chrome, open_epub_with_reader
+from open_doc import open_pdf_with_edge, open_epub_with_reader
 
 
 def main():
