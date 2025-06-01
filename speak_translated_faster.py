@@ -13,7 +13,7 @@ def run(speed: float, player: str, tts_mode: str, engine: str):
             source_lang="auto",
             target_lang="vi",
             source_text=text,
-            translator="crow",
+            translator="google_new",
         )
         tts(text=translated, mode=tts_mode, player=player, speed=speed, engine=engine)
 

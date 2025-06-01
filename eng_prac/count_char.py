@@ -2,10 +2,11 @@ import datetime
 from subprocess import check_output
 from pathlib import Path
 import logging
+import random
 
-import numpy as np
-import platform
 from termcolor import colored
+
+
 
 
 # get content with xsel (linux) and check_output
@@ -43,7 +44,7 @@ def main():
     content = normalize_text(get_clipboard())
 
     # random char from a-z
-    char = np.random.choice(list("abcdefghijklmnopqrstuvwxyz"))
+    char = random.choice("abcdefghijklmnopqrstuvwxyz")
 
     guess = input('Guess number of "' + colored(char, "black", "on_white") + '": ')
     # check gess only contains numbers

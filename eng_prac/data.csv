@@ -84,3 +84,7 @@ timestamp; content; char; guess; answer
 2024-10-08 14:34:54.370565;the central question of development economics is simple;h;0;1
 2024-10-08 14:35:36.121696;accelerating any of these three factors will increase a country’s growth rate. i can’t emphasize enough how important this reframing is;v;0;0
 2024-10-08 14:41:42.885334;and while “how do we make countries grow?” produces platitudes,;p;1;2
+2025-01-16 14:32:42.744584;sample mean versus population mean;e;1;4
+2025-01-16 14:41:28.299420;log files with timestamps: zstd can be tuned with custom dictionaries to achieve better compression for structured logs.;z;0;1
+2025-01-21 14:08:16.763317;neo4j: highly optimized for graph data and scales well for large and complex graph datasets. it offers clustering and horizontal scaling capabilities with its enterprise version.;a;8;15
+2025-01-21 14:09:19.208063;surrealdb: emphasizes ease of scaling for mixed workloads, with support for distributed deployments. it aims for flexibility in scaling while handling different data models.;y;2;2

@@ -33,7 +33,7 @@ def translate_book(render_cmd, watch_cmd, edit_cmd):
     new_tab("edit")
     type_run_cmd(edit_cmd)
     new_tab_with_cmd("render", render_cmd)
-    new_tab_with_cmd("watch", watch_cmd)
+    # new_tab_with_cmd("watch", watch_cmd)
 
 
 def split_window(on: str):

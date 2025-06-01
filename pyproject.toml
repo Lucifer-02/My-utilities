@@ -1,0 +1,13 @@
+[project]
+name = "my-utilities"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "gtts>=2.5.4",
+    "pikepdf>=9.7.0",
+    "pyyaml>=6.0.2",
+    "requests>=2.32.3",
+    "termcolor>=2.5.0",
+]
