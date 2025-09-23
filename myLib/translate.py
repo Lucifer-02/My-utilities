@@ -1,8 +1,9 @@
 """Online translation library"""
 
-from subprocess import check_output
-import requests
 import urllib.parse  # Import for URL encoding example print
+from subprocess import check_output
+
+import requests
 
 
 def _trans_crow(source_lang: str, target_lang: str, source_text: str) -> str:
@@ -14,17 +15,19 @@ def _trans_crow(source_lang: str, target_lang: str, source_text: str) -> str:
         # More robust error handling might be needed depending on crow-translate's output format.
         output = check_output(
             ["crow", "-b", "-s", source_lang, "-t", target_lang, source_text],
-            encoding="utf-8", # Use encoding instead of decoding after the fact
-            text=True # Use text mode for check_output
-        ).strip() # Strip leading/trailing whitespace
+            encoding="utf-8",  # Use encoding instead of decoding after the fact
+            text=True,  # Use text mode for check_output
+        ).strip()  # Strip leading/trailing whitespace
 
         # Basic check: if output is empty, maybe it failed? Or maybe the source text was empty?
         # This is a simple assumption, crow's specific error output would need to be handled more precisely.
         if not output:
-             print(f"Warning: crow-translate returned empty output for text: '{source_text}'")
-             # Consider raising an exception or returning a specific error indicator if empty output is always a failure
-             # For now, we return empty string as original _trans_api did on some failures
-             return ""
+            print(
+                f"Warning: crow-translate returned empty output for text: '{source_text}'"
+            )
+            # Consider raising an exception or returning a specific error indicator if empty output is always a failure
+            # For now, we return empty string as original _trans_api did on some failures
+            return ""
 
         return output
 
@@ -34,7 +37,7 @@ def _trans_crow(source_lang: str, target_lang: str, source_text: str) -> str:
         return f"Error: crow-translate failed - {e}"
 
 
-def _fetch_json(url: str, params: dict,  timeout: int = 10, headers: dict| None = None):
+def _fetch_json(url: str, params: dict, timeout: int = 10, headers: dict | None = None):
     """
     Helper function to perform an HTTP GET request and return JSON data or error.
 
@@ -48,9 +51,7 @@ def _fetch_json(url: str, params: dict,  timeout: int = 10, headers: dict| None 
         dict | str: The parsed JSON response on success, or an error string on failure.
     """
     try:
-        response = requests.get(
-            url, params=params, headers=headers, timeout=timeout
-        )
+        response = requests.get(url, params=params, headers=headers, timeout=timeout)
         response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
         return response.json()
     except requests.exceptions.HTTPError as errh:
@@ -88,27 +89,36 @@ def _google_trans(source_lang: str, target_lang: str, source_text: str) -> str:
     if isinstance(json_data, str):
         # _fetch_json returned an error string
         print(f"Translating error: {json_data}")
-        return "" # Return empty string on error, consistent with original behavior
+        return ""  # Return empty string on error, consistent with original behavior
 
     try:
         # Expecting a structure like [[["translated text","original text",...]],...]
         # The first element [0] should contain a list of chunks/sentences.
         # Each chunk [i][0] should contain the translated text for that chunk.
-        if isinstance(json_data, list) and len(json_data) > 0 and isinstance(json_data[0], list):
-             chunks = json_data[0]
-             translation_chunks = [chunk[0] for chunk in chunks if isinstance(chunk, list) and len(chunk) > 0]
-             translation = "".join(translation_chunks)
-             return "" if translation is None else translation
+        if (
+            isinstance(json_data, list)
+            and len(json_data) > 0
+            and isinstance(json_data[0], list)
+        ):
+            chunks = json_data[0]
+            translation_chunks = [
+                chunk[0]
+                for chunk in chunks
+                if isinstance(chunk, list) and len(chunk) > 0
+            ]
+            translation = "".join(translation_chunks)
+            return "" if translation is None else translation
         else:
-             # Unexpected JSON structure
-             print(f"Translating error: Unexpected JSON structure from _trans_api: {json_data}")
-             return "" # Return empty string for unexpected structure
-
+            # Unexpected JSON structure
+            print(
+                f"Translating error: Unexpected JSON structure from _trans_api: {json_data}"
+            )
+            return ""  # Return empty string for unexpected structure
 
     except Exception as error:
         # Catch errors during JSON parsing
         print(f"Translating error during JSON parsing: {error}")
-        return "" # Return empty string on parsing error
+        return ""  # Return empty string on parsing error
 
 
 def _google_trans_new(
@@ -148,7 +158,7 @@ def _google_trans_new(
         "query.target_language": target_lang,
         "query.display_language": "en-US",
         "data_types": "TRANSLATION",
-        "key": HARDCODED_API_KEY, # This key is likely expired or invalid
+        "key": HARDCODED_API_KEY,  # This key is likely expired or invalid
         "query.text": source_text,
     }
 
@@ -161,21 +171,20 @@ def _google_trans_new(
 
     # Check if _fetch_json returned an error string
     if isinstance(json_data, str):
-        print(f"\n--- Actual Full URL Requested (after request sent) ---")
+        print("\n--- Actual Full URL Requested (after request sent) ---")
         # Note: We don't have the exact URL from requests object here,
         # as _fetch_json only returns the data or error string.
         # A more advanced _fetch_json could return (data, url) tuple on success.
         # For now, we'll just print the base URL and parameters.
         print(f"{UNOFFICIAL_ENDPOINT}?{urllib.parse.urlencode(params)}")
-        print(f"----------------------------------------------------\n")
-        return json_data # Return the error string directly
+        print("----------------------------------------------------\n")
+        return json_data  # Return the error string directly
 
     # If we got JSON data, print the URL anyway for debugging
-    print(f"\n--- Actual Full URL Requested (after request sent) ---")
+    print("\n--- Actual Full URL Requested (after request sent) ---")
     # Again, approximating the URL.
     print(f"{UNOFFICIAL_ENDPOINT}?{urllib.parse.urlencode(params)}")
-    print(f"----------------------------------------------------\n")
-
+    print("----------------------------------------------------\n")
 
     # The response structure for this unofficial API can vary.
     # Common structures include:
@@ -206,7 +215,9 @@ def _google_trans_new(
             and isinstance(json_data["sentences"], list)
         ):
             translated_sentences = [
-                s["trans"] for s in json_data["sentences"] if isinstance(s, dict) and "trans" in s
+                s["trans"]
+                for s in json_data["sentences"]
+                if isinstance(s, dict) and "trans" in s
             ]
             return "".join(translated_sentences)
 
@@ -234,16 +245,16 @@ def trans(
             target_lang=target_lang,
             source_text=source_text,
         )
-    if translator == "api": # Keep "api" for the older Google Translate endpoint
+    if translator == "api":  # Keep "api" for the older Google Translate endpoint
         return _google_trans(
             source_lang=source_lang,
             target_lang=target_lang,
             source_text=source_text,
         )
 
-    if translator == "google_new": # Keep "google_new" for the unofficial endpoint
+    if translator == "google_new":  # Keep "google_new" for the unofficial endpoint
         return _google_trans_new(
-            source_text=source_text, # Note: _google_trans_new signature is text, src, tgt
+            source_text=source_text,  # Note: _google_trans_new signature is text, src, tgt
             source_lang=source_lang,
             target_lang=target_lang,
         )
