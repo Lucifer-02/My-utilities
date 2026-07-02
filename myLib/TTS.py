@@ -17,7 +17,7 @@ class MyTTS:
                 SPEED = "0"  # not need speed
                 MODE = "2"
                 TTS_LINUX_PATH = Path(
-                    f"/media/lucifer/STORAGE/IMPORTANT/My-utilities/myLib/{engine}"
+                    f"/data/IMPORTANT/My-utilities/myLib/{engine}"
                 )
                 TTS_WINDOWS_PATH = Path(f"D:\\IMPORTANT\\My-utilities\\myLib\\{engine}")
                 TTS_PATH = TTS_LINUX_PATH if os.name == "posix" else TTS_WINDOWS_PATH
@@ -34,7 +34,7 @@ class MyTTS:
             case "new_lang_tool":
                 MODE = "tts"
                 TTS_PATH = Path(
-                    f"/media/lucifer/STORAGE/IMPORTANT/My-utilities/myLib/{engine}"
+                    f"/data/IMPORTANT/My-utilities/myLib/{engine}"
                 )
                 assert TTS_PATH.is_file()
                 self.audio = check_output([TTS_PATH, MODE, "en", "vi", text])

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
 import argparse
-from pathlib import Path
-import polars as pl
 import sys
+from pathlib import Path
+
+import polars as pl
 
 EXCEL_ROW_LIMIT = 1_048_576
 SUPPORTED_TYPES = {"parquet", "csv"}
@@ -37,6 +38,7 @@ def convert_to_excel(input_file: Path, output_file: Path) -> None:
                 f"{input_file} has {df.height} rows. "
                 f"Excel limit is {EXCEL_ROW_LIMIT} rows."
             )
+        df = df.with_columns(pl.col(pl.Datetime).dt.replace_time_zone(None))
 
         output_file.parent.mkdir(parents=True, exist_ok=True)
         df.write_excel(output_file, worksheet="Sheet1")
